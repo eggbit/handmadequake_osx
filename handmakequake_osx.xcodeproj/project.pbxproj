@@ -8,7 +8,6 @@
 
 /* Begin PBXBuildFile section */
 		E0365A591C387D67005EAD9C /* main.c in Sources */ = {isa = PBXBuildFile; fileRef = E0365A581C387D67005EAD9C /* main.c */; };
-		E0365A601C39CF29005EAD9C /* readme.md in Sources */ = {isa = PBXBuildFile; fileRef = E0365A5F1C39CF29005EAD9C /* readme.md */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -26,7 +25,6 @@
 /* Begin PBXFileReference section */
 		E0365A551C387D67005EAD9C /* handmakequake_osx */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = handmakequake_osx; sourceTree = BUILT_PRODUCTS_DIR; };
 		E0365A581C387D67005EAD9C /* main.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = main.c; sourceTree = "<group>"; };
-		E0365A5F1C39CF29005EAD9C /* readme.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; name = readme.md; path = handmakequake_osx/readme.md; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -43,7 +41,6 @@
 		E0365A4C1C387D67005EAD9C = {
 			isa = PBXGroup;
 			children = (
-				E0365A5F1C39CF29005EAD9C /* readme.md */,
 				E0365A571C387D67005EAD9C /* handmakequake_osx */,
 				E0365A561C387D67005EAD9C /* Products */,
 			);
@@ -121,7 +118,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				E0365A601C39CF29005EAD9C /* readme.md in Sources */,
 				E0365A591C387D67005EAD9C /* main.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

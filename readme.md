@@ -1,7 +1,7 @@
 # handmadequake_osx
 This is (mostly) going to be a follow-along project for the [Handmade Quake series by Philip Buuck](https://www.youtube.com/playlist?list=PLBKDuv-qJpTbCsXHsxcoSSsMarnfyNhHF).
 
-Since the Handmade Quake project seems to be Windows-centric and I have no real urge to install Windows, the main challenge will be getting everything to work on OSX.  This may or may not be possible since the preview video series (episodes 0.1 -> 0.5) tossed out all the OpenGL and hinted on relying on a propreirtary win32 library.  We'll see when we get there.
+Since the Handmade Quake project seems to be Windows-centric and I have no real urge to install Windows, the main challenge will be getting everything to work on OSX.  This may or may not be possible since the preview video series (episodes 0.1 -> 0.5) tossed out all the OpenGL and hinted on relying on a proprietary win32 library.  We'll see when we get there.
 
 The end product of the Handmade Quake series is also going to [pretty much end up being the same source code that already exists](https://www.reddit.com/r/programming/comments/3xy110/announcing_handmade_quake/cy90vnl).  I intended on modernizing the code as I go using today's best practices and C11 standards, as best I can.  It's been a long while since I've programmed in C regularly so this will make for a good (re)learning experience, too.
 
