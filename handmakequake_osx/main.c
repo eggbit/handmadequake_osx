@@ -17,7 +17,7 @@ int main(int argc, const char * argv[]) {
         goto error;
     }
     
-    renderer = SDL_CreateRenderer(window, -1, 0);
+    renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_PRESENTVSYNC | SDL_RENDERER_ACCELERATED);
     
     if(renderer == NULL) {
         goto error;
