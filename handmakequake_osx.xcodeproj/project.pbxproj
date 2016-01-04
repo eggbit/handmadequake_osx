@@ -1,0 +1,262 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		E0365A591C387D67005EAD9C /* main.c in Sources */ = {isa = PBXBuildFile; fileRef = E0365A581C387D67005EAD9C /* main.c */; };
+		E0365A601C39CF29005EAD9C /* readme.md in Sources */ = {isa = PBXBuildFile; fileRef = E0365A5F1C39CF29005EAD9C /* readme.md */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		E0365A531C387D67005EAD9C /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = /usr/share/man/man1/;
+			dstSubfolderSpec = 0;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 1;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
+/* Begin PBXFileReference section */
+		E0365A551C387D67005EAD9C /* handmakequake_osx */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = handmakequake_osx; sourceTree = BUILT_PRODUCTS_DIR; };
+		E0365A581C387D67005EAD9C /* main.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = main.c; sourceTree = "<group>"; };
+		E0365A5F1C39CF29005EAD9C /* readme.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; name = readme.md; path = handmakequake_osx/readme.md; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		E0365A521C387D67005EAD9C /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		E0365A4C1C387D67005EAD9C = {
+			isa = PBXGroup;
+			children = (
+				E0365A5F1C39CF29005EAD9C /* readme.md */,
+				E0365A571C387D67005EAD9C /* handmakequake_osx */,
+				E0365A561C387D67005EAD9C /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		E0365A561C387D67005EAD9C /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				E0365A551C387D67005EAD9C /* handmakequake_osx */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		E0365A571C387D67005EAD9C /* handmakequake_osx */ = {
+			isa = PBXGroup;
+			children = (
+				E0365A581C387D67005EAD9C /* main.c */,
+			);
+			path = handmakequake_osx;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		E0365A541C387D67005EAD9C /* handmakequake_osx */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = E0365A5C1C387D67005EAD9C /* Build configuration list for PBXNativeTarget "handmakequake_osx" */;
+			buildPhases = (
+				E0365A511C387D67005EAD9C /* Sources */,
+				E0365A521C387D67005EAD9C /* Frameworks */,
+				E0365A531C387D67005EAD9C /* CopyFiles */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = handmakequake_osx;
+			productName = handmakequake_osx;
+			productReference = E0365A551C387D67005EAD9C /* handmakequake_osx */;
+			productType = "com.apple.product-type.tool";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		E0365A4D1C387D67005EAD9C /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastUpgradeCheck = 0700;
+				ORGANIZATIONNAME = eggbit;
+				TargetAttributes = {
+					E0365A541C387D67005EAD9C = {
+						CreatedOnToolsVersion = 7.0;
+					};
+				};
+			};
+			buildConfigurationList = E0365A501C387D67005EAD9C /* Build configuration list for PBXProject "handmakequake_osx" */;
+			compatibilityVersion = "Xcode 3.2";
+			developmentRegion = English;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+			);
+			mainGroup = E0365A4C1C387D67005EAD9C;
+			productRefGroup = E0365A561C387D67005EAD9C /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				E0365A541C387D67005EAD9C /* handmakequake_osx */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXSourcesBuildPhase section */
+		E0365A511C387D67005EAD9C /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				E0365A601C39CF29005EAD9C /* readme.md in Sources */,
+				E0365A591C387D67005EAD9C /* main.c in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		E0365A5A1C387D67005EAD9C /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.11;
+				MTL_ENABLE_DEBUG_INFO = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = macosx;
+			};
+			name = Debug;
+		};
+		E0365A5B1C387D67005EAD9C /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.11;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				SDKROOT = macosx;
+			};
+			name = Release;
+		};
+		E0365A5D1C387D67005EAD9C /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				OTHER_CFLAGS = (
+					"-I/usr/local/include/SDL2",
+					"-D_THREAD_SAFE",
+				);
+				OTHER_LDFLAGS = (
+					"-L/usr/local/lib",
+					"-lSDL2",
+				);
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		E0365A5E1C387D67005EAD9C /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				OTHER_CFLAGS = (
+					"-I/usr/local/include/SDL2",
+					"-D_THREAD_SAFE",
+				);
+				OTHER_LDFLAGS = (
+					"-L/usr/local/lib",
+					"-lSDL2",
+				);
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		E0365A501C387D67005EAD9C /* Build configuration list for PBXProject "handmakequake_osx" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				E0365A5A1C387D67005EAD9C /* Debug */,
+				E0365A5B1C387D67005EAD9C /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		E0365A5C1C387D67005EAD9C /* Build configuration list for PBXNativeTarget "handmakequake_osx" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				E0365A5D1C387D67005EAD9C /* Debug */,
+				E0365A5E1C387D67005EAD9C /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = E0365A4D1C387D67005EAD9C /* Project object */;
+}
