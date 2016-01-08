@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdint.h>
 #include <sdl.h>
 
 int main(int argc, const char * argv[]) {
@@ -24,7 +25,7 @@ int main(int argc, const char * argv[]) {
     }
 
     SDL_Event event;
-    int r = 0, g = 0, b = 0, a = 255;
+    uint8_t r = 0, g = 0, b = 0, a = 255;
     
     // Main loop
     for(;;) {

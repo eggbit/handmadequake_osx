@@ -205,6 +205,8 @@
 		E0365A5D1C387D67005EAD9C /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				GCC_C_LANGUAGE_STANDARD = c11;
+				GCC_OPTIMIZATION_LEVEL = 0;
 				OTHER_CFLAGS = (
 					"-I/usr/local/include/SDL2",
 					"-D_THREAD_SAFE",
@@ -220,6 +222,8 @@
 		E0365A5E1C387D67005EAD9C /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				GCC_C_LANGUAGE_STANDARD = c11;
+				GCC_OPTIMIZATION_LEVEL = 3;
 				OTHER_CFLAGS = (
 					"-I/usr/local/include/SDL2",
 					"-D_THREAD_SAFE",
@@ -251,6 +255,7 @@
 				E0365A5E1C387D67005EAD9C /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};
