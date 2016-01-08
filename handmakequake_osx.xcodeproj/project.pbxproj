@@ -246,7 +246,7 @@
 				E0365A5B1C387D67005EAD9C /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
+			defaultConfigurationName = Debug;
 		};
 		E0365A5C1C387D67005EAD9C /* Build configuration list for PBXNativeTarget "handmakequake_osx" */ = {
 			isa = XCConfigurationList;
@@ -255,7 +255,7 @@
 				E0365A5E1C387D67005EAD9C /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
+			defaultConfigurationName = Debug;
 		};
 /* End XCConfigurationList section */
 	};
