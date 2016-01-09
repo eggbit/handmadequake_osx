@@ -5,7 +5,7 @@
 #include <sdl.h>
 
 // Check if the command line argument 'search_arg' exists.  If it does, return the associated value.
-// If it doesn't exist, return NULL.
+// If it doesn't exist, return "-1" so atoi (et al) won't choke.
 //
 //      eg. quake -setalpha 50 -startwindowed
 //
