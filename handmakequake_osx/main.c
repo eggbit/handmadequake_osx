@@ -39,33 +39,20 @@ main(int argc, const char *argv[]) {
     SDL_Renderer *renderer = NULL;
     
     // SDL window and renderer Initialization
-    if(SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_EVENTS) < 0) {
-        goto error;
-    }
+    if(SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_EVENTS) < 0) goto error;
     
     // Let's test our argument parser....
     int32_t width = atoi(CheckParam("-width", argc, argv));
     int32_t height = atoi(CheckParam("-height", argc, argv));
     
-    if(width < 0) {
-        width = 640;
-    }
-    
-    if(height < 0) {
-        height = 480;
-    }
+    if(width < 0) width = 640;
+    if(height < 0) height = 480;
     
     window = SDL_CreateWindow("handmadequake_osx", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, width, height, 0);
-    
-    if(window == NULL) {
-        goto error;
-    }
+    if(!window) goto error;
     
     renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_PRESENTVSYNC | SDL_RENDERER_ACCELERATED);
-    
-    if(renderer == NULL) {
-        goto error;
-    }
+    if(!renderer) goto error;
 
     SDL_Event event;
     uint8_t r = 0, g = 0, b = 0, a = 255;
