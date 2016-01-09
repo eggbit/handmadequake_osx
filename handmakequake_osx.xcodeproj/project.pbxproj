@@ -216,6 +216,12 @@
 					"-lSDL2",
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				WARNING_CFLAGS = (
+					"-Wall",
+					"-Wextra",
+					"-Werror",
+					"-Wno-unused-parameter",
+				);
 			};
 			name = Debug;
 		};
@@ -233,6 +239,12 @@
 					"-lSDL2",
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				WARNING_CFLAGS = (
+					"-Wall",
+					"-Wextra",
+					"-Werror",
+					"-Wno-unused-parameter",
+				);
 			};
 			name = Release;
 		};
