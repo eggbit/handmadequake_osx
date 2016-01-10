@@ -60,7 +60,7 @@ main(int argc, const char *argv[]) {
     // Main loop
     for(;;) {
         // For use in capping the framerate below.
-        int32_t ticks_start = SDL_GetTicks();
+        uint32_t ticks_start = SDL_GetTicks();
         
         // Event processing
         while(SDL_PollEvent(&event)) {
