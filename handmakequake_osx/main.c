@@ -15,7 +15,7 @@
 //      /* alpha_val will contain '50' */
 //      /* windowed_val will contain '1' for true */
 const char *
-CheckParam(const char *search_arg, uint32_t num_args, const char *args[]) {
+com_check_parm(const char *search_arg, uint32_t num_args, const char *args[]) {
     // Loop through all available parameters.
     for(uint32_t i = 0; i < num_args; i++) {
         
@@ -42,8 +42,8 @@ main(int argc, const char *argv[]) {
     if(SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_EVENTS) < 0) goto error;
     
     // Let's test our argument parser....
-    int32_t width = atoi(CheckParam("-width", argc, argv));
-    int32_t height = atoi(CheckParam("-height", argc, argv));
+    int32_t width = atoi(com_check_parm("-width", argc, argv));
+    int32_t height = atoi(com_check_parm("-height", argc, argv));
     
     if(!width) width = 640;
     if(!height) height = 480;
