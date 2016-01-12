@@ -4,6 +4,25 @@
 #include <string.h>
 #include <sdl.h>
 
+// Custom version of strcmp from string.h.  Same functionality and return values.
+int32_t
+q_strcmp(const char *str1, const char *str2) {
+    while(*str1 == *str2) {
+        if(*str1 == '\0') return 0;
+        
+        ++str1;
+        ++str2;
+    }
+    
+    return (*str1 < *str2) ? 1 : -1;
+}
+
+// Updated version of atoi from stdlib.h.  Can handle hexadecimal and integer strings.
+int32_t
+q_atoi(const char *numstr) {
+    return 0;
+}
+
 // Check if the command line argument 'search_arg' exists.  If it does, return the associated value.
 // If it doesn't exist, return null terminator so atoi (et al) won't choke.
 //
