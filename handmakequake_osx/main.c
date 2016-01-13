@@ -32,22 +32,22 @@ q_atoi(const char *numstr) {
         // Check for signed/unsigned
         if(*numstr == '-') {
             sign = -1;
-            ++numstr;
             
-            // Skip to next iteration of the loop.
+            // Go directly to next iteration of the loop.
+            ++numstr;
             continue;
         }
         
         // Hexadecimal check.
         if(*numstr == '0' && (*(numstr + 1) == 'x' || *(numstr + 1) == 'X')) {
-            // Can't have negative hexadecimals (eg. -0x64BCD)
-            if(sign < 0) return 0;
-            
-            // Set base to 16 and skip over the '0x'.
+            // Can't have negative hexadecimals (eg. -0x64BCD) or muli-hex (eg 0x350xf)
+            if(sign < 0 || base == 16) return 0;
+
+            // Hex is base-16, decidmal is base-10.
             base = 16;
-            numstr += 2;
             
-            // Next iteration
+            // Skip over the '0x' and go to the next iteration.
+            numstr += 2;
             continue;
         }
         
