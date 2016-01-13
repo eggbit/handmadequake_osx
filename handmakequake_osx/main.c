@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <string.h>
+#include <stdbool.h>
 #include <sdl.h>
 
 // Custom version of strcmp from string.h.  Same functionality and return values.
@@ -20,7 +21,53 @@ q_strcmp(const char *str1, const char *str2) {
 // Updated version of atoi from stdlib.h.  Can handle hexadecimal and integer strings.
 int32_t
 q_atoi(const char *numstr) {
-    return 0;
+    int32_t sign = 1;
+    int32_t num = 0;
+    bool hex = false;
+    
+    while(*numstr) {
+        // Check for signed/unsigned
+        if(*numstr == '-') {
+            sign = -1;
+            ++numstr;
+            
+            // Skip to next iteration of the loop.
+            continue;
+        }
+        
+        // Hexadecimal
+        if(*numstr == '0' && (*(numstr + 1) == 'x' || *(numstr + 1) == 'X')) {
+            // Can't have negative hexadecimals (eg. -0x64BCD)
+            if(sign < 0) return 0;
+            
+            // Set hex flag and skip over the '0x'.
+            hex = true;
+            numstr += 2;
+            
+            continue;
+        }
+        
+        if(hex) {
+            if(*numstr >= '0' && *numstr <= '9') {
+                num = num * 16 + (*numstr - 48) * sign;
+            }
+            
+            if(*numstr >= 'a' && *numstr <= 'f') {
+                num = num * 16 + (*numstr - 97) + 10 * sign;
+            }
+            
+            if(*numstr >= 'A' && *numstr <= 'F') {
+                num = num * 16 + (*numstr - 65) + 10 * sign;
+            }
+        }
+        else if(*numstr >= '0' && *numstr <= '9') {
+                num = num * 10 + (*numstr - 48) * sign;
+        }
+        
+        ++numstr;
+    }
+    
+    return num;
 }
 
 // Check if the command line argument 'search_arg' exists.  If it does, return the associated value.
