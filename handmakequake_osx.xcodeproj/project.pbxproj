@@ -68,7 +68,7 @@
 		E0365A4C1C387D67005EAD9C = {
 			isa = PBXGroup;
 			children = (
-				E0365A571C387D67005EAD9C /* handmakequake_osx */,
+				E0365A571C387D67005EAD9C /* src */,
 				E01DD8081C45B1B300BE846C /* tests */,
 				E0365A561C387D67005EAD9C /* Products */,
 			);
@@ -83,12 +83,12 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
-		E0365A571C387D67005EAD9C /* handmakequake_osx */ = {
+		E0365A571C387D67005EAD9C /* src */ = {
 			isa = PBXGroup;
 			children = (
 				E0365A581C387D67005EAD9C /* main.c */,
 			);
-			path = handmakequake_osx;
+			path = src;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -330,6 +330,7 @@
 				E01DD80C1C45B1B300BE846C /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
 		};
 		E0365A501C387D67005EAD9C /* Build configuration list for PBXProject "handmakequake_osx" */ = {
 			isa = XCConfigurationList;
