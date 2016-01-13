@@ -66,8 +66,8 @@ q_atoi(const char *numstr) {
 //
 //      eg. quake -setalpha 50 -startwindowed
 //
-//      const char *alpha_val = CheckParam("-setalpha", argc, argv);
-//      const char *windowed_val = CheckParam("-startwindowed", argc, argv);
+//      const char *alpha_val = com_check_parm("-setalpha", argc, argv);
+//      const char *windowed_val = com_check_parm("-startwindowed", argc, argv);
 //
 //      /* alpha_val will contain '50' */
 //      /* windowed_val will contain '1' for true */
@@ -77,7 +77,7 @@ com_check_parm(const char *search_arg, uint32_t num_args, const char *args[]) {
     for(uint32_t i = 0; i < num_args; i++) {
         
         // See if any match the parameter we're searching for.
-        if(strcmp(args[i], search_arg) == 0) {
+        if(q_strcmp(args[i], search_arg) == 0) {
             
             // If we found the parameter, get it's value
             const char *arg_val = args[++i];
