@@ -2,10 +2,67 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <string.h>
+#include <stdbool.h>
 #include <sdl.h>
 
+// Custom version of strcmp from string.h.  Same functionality and return values.
+int32_t
+q_strcmp(const char *str1, const char *str2) {
+    while(*str1 == *str2) {
+        if(*str1 == '\0') return 0;
+        
+        ++str1;
+        ++str2;
+    }
+    
+    return (*str1 < *str2) ? 1 : -1;
+}
+
+// Updated version of atoi from stdlib.h.  Can handle hexadecimal and integer strings.
+int32_t
+q_atoi(const char *numstr) {
+    // Check for null string
+    if(!numstr) return 0;
+    
+    int32_t sign = 1;
+    int32_t num = 0;
+    int32_t base = 10;
+    
+    while(*numstr) {
+        // Check for signed/unsigned
+        if(*numstr == '-') {
+            sign = -1;
+            ++numstr;
+            
+            // Skip to next iteration of the loop.
+            continue;
+        }
+        
+        // Hexadecimal check.
+        if(*numstr == '0' && (*(numstr + 1) == 'x' || *(numstr + 1) == 'X')) {
+            // Can't have negative hexadecimals (eg. -0x64BCD)
+            if(sign < 0) return 0;
+            
+            // Set base to 16 and skip over the '0x'.
+            base = 16;
+            numstr += 2;
+            
+            // Next iteration
+            continue;
+        }
+        
+        if(*numstr >= '0' && *numstr <= '9') num = num * base + (*numstr - 48);
+        if(*numstr >= 'a' && *numstr <= 'f') num = num * base + (*numstr - 97) + 10;
+        if(*numstr >= 'A' && *numstr <= 'F') num = num * base + (*numstr - 65) + 10;
+        
+        ++numstr;
+    }
+    
+    return num * sign;
+}
+
 // Check if the command line argument 'search_arg' exists.  If it does, return the associated value.
-// If it doesn't exist, return null terminator so atoi (et al) won't choke.
+// If it doesn't exist, return null.
 //
 //      eg. quake -setalpha 50 -startwindowed
 //
@@ -30,7 +87,7 @@ com_check_parm(const char *search_arg, uint32_t num_args, const char *args[]) {
         }
     }
     // Parameter not found
-    return "\0";
+    return NULL;
 }
 
 int
@@ -42,8 +99,8 @@ main(int argc, const char *argv[]) {
     if(SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_EVENTS) < 0) goto error;
     
     // Let's test our argument parser....
-    int32_t width = atoi(com_check_parm("-width", argc, argv));
-    int32_t height = atoi(com_check_parm("-height", argc, argv));
+    int32_t width = q_atoi(com_check_parm("-width", argc, argv));
+    int32_t height = q_atoi(com_check_parm("-height", argc, argv));
     
     if(!width) width = 640;
     if(!height) height = 480;

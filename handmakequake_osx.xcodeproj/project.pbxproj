@@ -7,10 +7,20 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		E01DD80A1C45B1B300BE846C /* main.c in Sources */ = {isa = PBXBuildFile; fileRef = E01DD8091C45B1B300BE846C /* main.c */; };
 		E0365A591C387D67005EAD9C /* main.c in Sources */ = {isa = PBXBuildFile; fileRef = E0365A581C387D67005EAD9C /* main.c */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
+		E01DD8051C45B1B300BE846C /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = /usr/share/man/man1/;
+			dstSubfolderSpec = 0;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 1;
+		};
 		E0365A531C387D67005EAD9C /* CopyFiles */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
@@ -23,11 +33,20 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		E01DD8071C45B1B300BE846C /* tests */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = tests; sourceTree = BUILT_PRODUCTS_DIR; };
+		E01DD8091C45B1B300BE846C /* main.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = main.c; sourceTree = "<group>"; };
 		E0365A551C387D67005EAD9C /* handmakequake_osx */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = handmakequake_osx; sourceTree = BUILT_PRODUCTS_DIR; };
 		E0365A581C387D67005EAD9C /* main.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = main.c; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		E01DD8041C45B1B300BE846C /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		E0365A521C387D67005EAD9C /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -38,10 +57,19 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		E01DD8081C45B1B300BE846C /* tests */ = {
+			isa = PBXGroup;
+			children = (
+				E01DD8091C45B1B300BE846C /* main.c */,
+			);
+			path = tests;
+			sourceTree = "<group>";
+		};
 		E0365A4C1C387D67005EAD9C = {
 			isa = PBXGroup;
 			children = (
 				E0365A571C387D67005EAD9C /* handmakequake_osx */,
+				E01DD8081C45B1B300BE846C /* tests */,
 				E0365A561C387D67005EAD9C /* Products */,
 			);
 			sourceTree = "<group>";
@@ -50,6 +78,7 @@
 			isa = PBXGroup;
 			children = (
 				E0365A551C387D67005EAD9C /* handmakequake_osx */,
+				E01DD8071C45B1B300BE846C /* tests */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -65,6 +94,23 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
+		E01DD8061C45B1B300BE846C /* tests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = E01DD80D1C45B1B300BE846C /* Build configuration list for PBXNativeTarget "tests" */;
+			buildPhases = (
+				E01DD8031C45B1B300BE846C /* Sources */,
+				E01DD8041C45B1B300BE846C /* Frameworks */,
+				E01DD8051C45B1B300BE846C /* CopyFiles */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = tests;
+			productName = tests;
+			productReference = E01DD8071C45B1B300BE846C /* tests */;
+			productType = "com.apple.product-type.tool";
+		};
 		E0365A541C387D67005EAD9C /* handmakequake_osx */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = E0365A5C1C387D67005EAD9C /* Build configuration list for PBXNativeTarget "handmakequake_osx" */;
@@ -91,6 +137,9 @@
 				LastUpgradeCheck = 0700;
 				ORGANIZATIONNAME = eggbit;
 				TargetAttributes = {
+					E01DD8061C45B1B300BE846C = {
+						CreatedOnToolsVersion = 7.0;
+					};
 					E0365A541C387D67005EAD9C = {
 						CreatedOnToolsVersion = 7.0;
 					};
@@ -109,11 +158,20 @@
 			projectRoot = "";
 			targets = (
 				E0365A541C387D67005EAD9C /* handmakequake_osx */,
+				E01DD8061C45B1B300BE846C /* tests */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXSourcesBuildPhase section */
+		E01DD8031C45B1B300BE846C /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				E01DD80A1C45B1B300BE846C /* main.c in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		E0365A511C387D67005EAD9C /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -125,6 +183,20 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin XCBuildConfiguration section */
+		E01DD80B1C45B1B300BE846C /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		E01DD80C1C45B1B300BE846C /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
 		E0365A5A1C387D67005EAD9C /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -251,6 +323,14 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		E01DD80D1C45B1B300BE846C /* Build configuration list for PBXNativeTarget "tests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				E01DD80B1C45B1B300BE846C /* Debug */,
+				E01DD80C1C45B1B300BE846C /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+		};
 		E0365A501C387D67005EAD9C /* Build configuration list for PBXProject "handmakequake_osx" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
