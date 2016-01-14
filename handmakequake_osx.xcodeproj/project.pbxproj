@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		E01DD80A1C45B1B300BE846C /* main.c in Sources */ = {isa = PBXBuildFile; fileRef = E01DD8091C45B1B300BE846C /* main.c */; };
 		E0365A591C387D67005EAD9C /* main.c in Sources */ = {isa = PBXBuildFile; fileRef = E0365A581C387D67005EAD9C /* main.c */; };
+		E0F5A8381C48200E0000FA62 /* common.c in Sources */ = {isa = PBXBuildFile; fileRef = E0F5A8361C48200E0000FA62 /* common.c */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -37,6 +38,10 @@
 		E01DD8091C45B1B300BE846C /* main.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = main.c; sourceTree = "<group>"; };
 		E0365A551C387D67005EAD9C /* handmakequake_osx */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = handmakequake_osx; sourceTree = BUILT_PRODUCTS_DIR; };
 		E0365A581C387D67005EAD9C /* main.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = main.c; sourceTree = "<group>"; };
+		E037D0FB1C4827A1003D352A /* quakedef.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = quakedef.h; sourceTree = "<group>"; };
+		E09DFBCA1C4846700010D72F /* greatest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = greatest.h; sourceTree = "<group>"; };
+		E0F5A8361C48200E0000FA62 /* common.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = common.c; sourceTree = "<group>"; };
+		E0F5A8371C48200E0000FA62 /* common.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = common.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -61,6 +66,7 @@
 			isa = PBXGroup;
 			children = (
 				E01DD8091C45B1B300BE846C /* main.c */,
+				E09DFBCA1C4846700010D72F /* greatest.h */,
 			);
 			path = tests;
 			sourceTree = "<group>";
@@ -87,6 +93,9 @@
 			isa = PBXGroup;
 			children = (
 				E0365A581C387D67005EAD9C /* main.c */,
+				E0F5A8361C48200E0000FA62 /* common.c */,
+				E0F5A8371C48200E0000FA62 /* common.h */,
+				E037D0FB1C4827A1003D352A /* quakedef.h */,
 			);
 			path = src;
 			sourceTree = "<group>";
@@ -176,6 +185,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				E0F5A8381C48200E0000FA62 /* common.c in Sources */,
 				E0365A591C387D67005EAD9C /* main.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

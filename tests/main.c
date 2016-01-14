@@ -1,9 +1,6 @@
-// For future unit testing
+// Unit testing
+#include "../src/common.h"
 
-#include <stdio.h>
-
-int main(int argc, const char * argv[]) {
-    // insert code here...
-    printf("Hello, World!\n");
+int main() {
     return 0;
 }
