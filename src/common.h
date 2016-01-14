@@ -1,7 +1,7 @@
 #ifndef common_h
 #define common_h
 
-#include "quakedef.h"
+#include <stdint.h>
 
 int32_t q_strcmp(const char *str1, const char *str2);
 int32_t q_atoi(const char *numstr);
