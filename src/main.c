@@ -1,11 +1,8 @@
 #include "quakedef.h"
-#include "tests.h"
 #include <sdl.h>
 
 int
 main(int argc, const char *argv[]) {
-    if(!run_tests()) return 0;
-    
     SDL_Window *window = NULL;
     SDL_Renderer *renderer = NULL;
     
