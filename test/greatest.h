@@ -318,7 +318,7 @@ res = TEST();                                           \
 }                                                           \
 greatest_post_test(#TEST, res);                             \
 } else if (GREATEST_LIST_ONLY()) {                              \
-fprintf(GREATEST_STDOUT, "  %s\n", #TEST);                  \
+fprintf(GREATEST_STDOUT, "  %s\n", #TEST);                 \
 }                                                               \
 } while (0)
 
@@ -603,7 +603,7 @@ if (GREATEST_STDOUT == stdout) fflush(stdout);                      \
 static void report_suite(void) {                                        \
 if (greatest_info.suite.tests_run > 0) {                            \
 fprintf(GREATEST_STDOUT,                                        \
-"\n%u test%s - %u passed, %u failed, %u skipped",           \
+"%u test%s - %u passed, %u failed, %u skipped",           \
 greatest_info.suite.tests_run,                              \
 greatest_info.suite.tests_run == 1 ? "" : "s",              \
 greatest_info.suite.passed,                                 \
@@ -650,7 +650,7 @@ if (GREATEST_IS_VERBOSE()) {                                        \
 fprintf(GREATEST_STDOUT, "PASS %s: %s",                         \
 name, greatest_info.msg ? greatest_info.msg : "");          \
 } else {                                                            \
-fprintf(GREATEST_STDOUT, ".");                                  \
+/* fprintf(GREATEST_STDOUT, "."); */                                  \
 }                                                                   \
 greatest_info.suite.passed++;                                       \
 }                                                                       \
@@ -662,11 +662,11 @@ fprintf(GREATEST_STDOUT,                                        \
 name, greatest_info.msg ? greatest_info.msg : "",           \
 greatest_info.fail_file, greatest_info.fail_line);          \
 } else {                                                            \
-fprintf(GREATEST_STDOUT, "F");                                  \
+/* fprintf(GREATEST_STDOUT, "F"); */                                  \
 greatest_info.col++;                                            \
 /* add linebreak if in line of '.'s */                          \
 if (greatest_info.col != 0) {                                   \
-fprintf(GREATEST_STDOUT, "\n");                             \
+/* fprintf(GREATEST_STDOUT, "\n"); */                             \
 greatest_info.col = 0;                                      \
 }                                                               \
 fprintf(GREATEST_STDOUT, "FAIL %s: %s (%s:%u)\n",               \
@@ -684,7 +684,7 @@ name,                                                       \
 greatest_info.msg ?                                         \
 greatest_info.msg : "" );                                   \
 } else {                                                            \
-fprintf(GREATEST_STDOUT, "s");                                  \
+/* fprintf(GREATEST_STDOUT, "s"); */                                  \
 }                                                                   \
 greatest_info.suite.skipped++;                                      \
 }                                                                       \

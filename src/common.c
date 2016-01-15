@@ -3,6 +3,8 @@
 // Custom version of strcmp from string.h.  Same functionality and return values.
 int32_t
 q_strcmp(const char *str1, const char *str2) {
+    if(!str1 || !str2) return 0;
+    
     while(*str1 == *str2) {
         if(*str1 == '\0') return 0;
         
@@ -25,35 +27,74 @@ q_atoi(const char *numstr) {
     
     while(*numstr) {
         // Check for signed/unsigned
-        if(*numstr == '-') {
+        if(*numstr == '-')
             sign = -1;
-            
-            // Go directly to next iteration of the loop.
-            ++numstr;
-            continue;
-        }
-        
         // Hexadecimal check.
-        if(*numstr == '0' && (*(numstr + 1) == 'x' || *(numstr + 1) == 'X')) {
+        else if(*numstr == '0' && (*(numstr + 1) == 'x' || *(numstr + 1) == 'X')) {
             // Can't have negative hexadecimals (eg. -0x64BCD) or muli-hex (eg 0x350xf)
             if(sign < 0 || base == 16) return 0;
             
             // Hex is base-16, decidmal is base-10.
             base = 16;
             
-            // Skip over the '0x' and go to the next iteration.
-            numstr += 2;
-            continue;
+            // Skip over the '0x'.
+            ++numstr;
         }
-        
-        if(*numstr >= '0' && *numstr <= '9') num = num * base + (*numstr - 48);
-        if(*numstr >= 'a' && *numstr <= 'f') num = num * base + (*numstr - 97) + 10;
-        if(*numstr >= 'A' && *numstr <= 'F') num = num * base + (*numstr - 65) + 10;
+        else if(*numstr >= '0' && *numstr <= '9')
+            num = num * base + (*numstr - 48);
+        else if(*numstr >= 'a' && *numstr <= 'f')
+            num = num * base + (*numstr - 97) + 10;
+        else if(*numstr >= 'A' && *numstr <= 'F')
+            num = num * base + (*numstr - 65) + 10;
+        else
+            return num * sign;
         
         ++numstr;
     }
     
     return num * sign;
+}
+
+// Get the lengthof a given string.
+size_t
+q_strlen(const char *str) {
+    if(!str) return 0;
+    
+    int i = 0;
+    
+    while(*str) {
+        i++;
+        str++;
+    }
+    
+    return i;
+}
+
+// Custom versions of strcpy and strncpy from string.h.
+void
+q_strcpy(char *dest, const char *src) {
+    if(!src) return;
+    
+    while(*src) {
+        *dest++ = *src++;
+    }
+    
+    dest = 0;
+}
+
+void
+q_strncpy(char *dest, const char *src, int32_t count) {
+    if(!src || count < 0) return;
+    
+    while(*src && count) {
+        *dest++ = *src++;
+        --count;
+    }
+    
+    while(count) {
+        *dest++ = 0;
+        --count;
+    }
 }
 
 // Check if the command line argument 'search_arg' exists.  If it does, return the associated value.
@@ -68,6 +109,8 @@ q_atoi(const char *numstr) {
 //      /* windowed_val will contain '1' for true */
 const char *
 com_check_parm(const char *search_arg, uint32_t num_args, const char *args[]) {
+    if(!num_args) return NULL;
+    
     // Loop through all available parameters.
     for(uint32_t i = 0; i < num_args; i++) {
         
