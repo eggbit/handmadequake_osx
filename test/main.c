@@ -49,7 +49,7 @@ SUITE(test_q_atoi) {
     RUN_TEST(q_atoi_negative_integer);
     RUN_TEST(q_atoi_negative_float);
     RUN_TEST(q_atoi_positive_float);
-    
+
     RUN_TEST(q_atoi_hex_normal);
     RUN_TEST(q_atoi_hex_mixed);
     RUN_TEST(q_atoi_hex_negative);
@@ -105,7 +105,7 @@ SUITE(test_q_strcmp) {
 TEST q_strcpy_equal_array(void) {
     char new[40] = {0};
     q_strcpy(new, "Hello, world!");
-    
+
     ASSERT_STR_EQ("Hello, world!", new);
     PASS();
 }
@@ -113,7 +113,7 @@ TEST q_strcpy_equal_array(void) {
 TEST q_strcpy_null_check_right(void) {
     char *new = "";
     q_strcpy(new, NULL);
-    
+
     ASSERT_STR_EQ("", new);
     PASS();
 }
@@ -126,18 +126,34 @@ SUITE(test_q_strcpy) {
 //
 // q_strncpy
 //
-TEST q_strncpy_equal_array(void) {
+TEST q_strncpy_partial_copy(void) {
     char new[40] = {0};
     q_strncpy(new, "Hello, world!", 3);
-    
+
     ASSERT_STR_EQ("Hel", new);
+    PASS();
+}
+
+TEST q_strncpy_full_copy(void) {
+    char new[40] = {0};
+    q_strncpy(new, "Hello, world!", 13);
+
+    ASSERT_STR_EQ("Hello, world!", new);
+    PASS();
+}
+
+TEST q_strncpy_overflow_copy(void) {
+    char new[40] = {0};
+    q_strncpy(new, "Hello, world!", 50);
+
+    ASSERT_STR_EQ("Hello, world!", new);
     PASS();
 }
 
 TEST q_strncpy_null_check(void) {
     char new[40] = {0};
     q_strncpy(new, NULL, 3);
-    
+
     ASSERT_STR_EQ("", new);
     PASS();
 }
@@ -145,7 +161,7 @@ TEST q_strncpy_null_check(void) {
 TEST q_strncpy_zero_count_check(void) {
     char new[40] = {0};
     q_strncpy(new, "Hello!", 0);
-    
+
     ASSERT_STR_EQ("", new);
     PASS();
 }
@@ -153,13 +169,15 @@ TEST q_strncpy_zero_count_check(void) {
 TEST q_strncpy_negative_count_check(void) {
     char new[40] = {0};
     q_strncpy(new, "Hello!", -1);
-    
+
     ASSERT_STR_EQ("", new);
     PASS();
 }
 
 SUITE(test_q_strncpy) {
-    RUN_TEST(q_strncpy_equal_array);
+    RUN_TEST(q_strncpy_partial_copy);
+    RUN_TEST(q_strncpy_full_copy);
+    RUN_TEST(q_strncpy_overflow_copy);
     RUN_TEST(q_strncpy_null_check);
     RUN_TEST(q_strncpy_zero_count_check);
     RUN_TEST(q_strncpy_negative_count_check);
@@ -195,7 +213,7 @@ SUITE(test_q_strlen) {
 TEST com_check_parm_string(void) {
     const char *argv[] = {"-width", "640", "-height", "480", "-setalpha", "0x4cb"};
     int32_t args = sizeof(argv) / sizeof(argv[0]);
-    
+
     ASSERT_EQ("480", com_check_parm("-height", args, argv));
     ASSERT_EQ("640", com_check_parm("-width", args, argv));
     ASSERT_EQ("0x4cb", com_check_parm("-setalpha", args, argv));
@@ -204,14 +222,14 @@ TEST com_check_parm_string(void) {
 
 TEST com_check_parm_not_found(void) {
     const char *argv[] = {"-width", "640"};
-    
+
     ASSERT_FALSE(com_check_parm("-xyz", sizeof(argv) / sizeof(argv[0]), argv));
     PASS();
 }
 
 TEST com_check_parm_no_argv(void) {
     const char *argv[0];
-    
+
     ASSERT_FALSE(com_check_parm("-height", sizeof(argv) / sizeof(argv[0]), argv));
     PASS();
 }
@@ -230,13 +248,13 @@ GREATEST_MAIN_DEFS();
 
 int main(int argc, char * argv[]) {
     GREATEST_MAIN_BEGIN();
-    
+
     RUN_SUITE(test_q_atoi);
     RUN_SUITE(test_q_strcmp);
     RUN_SUITE(test_q_strcpy);
     RUN_SUITE(test_q_strncpy);
     RUN_SUITE(test_q_strlen);
     RUN_SUITE(test_com_check_parm);
-    
+
     GREATEST_MAIN_END();
 }
