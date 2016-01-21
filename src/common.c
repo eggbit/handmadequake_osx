@@ -3,7 +3,7 @@
 // Custom version of strcmp from string.h.  Same functionality and return values.
 int32_t
 q_strcmp(const char *str1, const char *str2) {
-    if(!str1 || !str2) return 0;
+    if(!str1 || !str2) return -2;
 
     while(*str1 == *str2) {
         if(*str1 == '\0') return 0;
@@ -114,7 +114,7 @@ com_check_parm(const char *search_arg, uint32_t num_args, const char *args[]) {
 
         // See if any match the parameter we're searching for.
         if(q_strcmp(args[i], search_arg) == 0) {
-            
+
             // If we've found a match and...
             //
             // i + 1 < num_args

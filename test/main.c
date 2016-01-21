@@ -57,7 +57,7 @@ SUITE(test_q_atoi) {
 }
 
 //
-// q_strcmp
+// q_strcmp 
 //
 TEST q_strcmp_equal(void) {
     ASSERT_EQ(0, q_strcmp("hello", "hello"));
@@ -75,17 +75,17 @@ TEST q_strcmp_right_earlier(void) {
 }
 
 TEST q_strcmp_null_check_right(void) {
-    ASSERT_FALSE(q_strcmp("hello", NULL));
+    ASSERT_EQ(-2, q_strcmp("hello", NULL));
     PASS();
 }
 
 TEST q_strcmp_null_check_left(void) {
-    ASSERT_FALSE(q_strcmp(NULL, "hello"));
+    ASSERT_EQ(-2, q_strcmp(NULL, "hello"));
     PASS();
 }
 
 TEST q_strcmp_null_double(void) {
-    ASSERT_FALSE(q_strcmp(NULL, NULL));
+    ASSERT_EQ(-2, q_strcmp(NULL, NULL));
     PASS();
 }
 
