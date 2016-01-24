@@ -1,6 +1,31 @@
 #include "quakedef.h"
 #include <sdl.h>
 
+// For naming consistency
+#define sdl_pump_events() SDL_PumpEvents()
+
+bool
+sdl_event_exists(SDL_Event *e, uint32_t event_type) {
+    return (SDL_PeepEvents(e, 1, SDL_GETEVENT, event_type, event_type));
+}
+
+void
+sdl_flush_events(void) {
+    SDL_FlushEvents(SDL_FIRSTEVENT, SDL_LASTEVENT);
+}
+
+SDL_Color
+sdl_handle_mousebuttondown() {
+    SDL_Color c = {
+        .r = rand() % 255,
+        .g = rand() % 255,
+        .b = rand() % 255,
+        .a = rand() % 255
+    };
+
+    return c;
+}
+
 int
 main(int argc, const char *argv[]) {
     SDL_Window *window = NULL;
@@ -23,27 +48,24 @@ main(int argc, const char *argv[]) {
     if(!renderer) goto error;
 
     SDL_Event event;
-    uint8_t r = 0, g = 0, b = 0, a = 255;
 
     // Main loop
     for(;;) {
-        // For use in capping the framerate below.
-        uint32_t ticks_start = SDL_GetTicks();
+        uint32_t ticks_start = SDL_GetTicks();  // For use in capping the framerate below.
+        static SDL_Color rgb = {0, 0, 0, 255};
 
         // Event processing
-        while(SDL_PollEvent(&event)) {
-            if(event.type == SDL_QUIT) goto exit;
+        sdl_pump_events();
 
-            if(event.type == SDL_MOUSEBUTTONDOWN) {
-                r = rand() % 255;
-                g = rand() % 255;
-                b = rand() % 255;
-                a = rand() % 255;
-            }
-        }
+        if(sdl_event_exists(&event, SDL_QUIT)) goto exit;
+
+        if(sdl_event_exists(&event, SDL_MOUSEBUTTONDOWN))
+            rgb = sdl_handle_mousebuttondown();
+
+        sdl_flush_events();
 
         // Rendering
-        SDL_SetRenderDrawColor(renderer, r, g, b, a);
+        SDL_SetRenderDrawColor(renderer, rgb.r, rgb.g, rgb.b, rgb.a);
         SDL_RenderClear(renderer);
         SDL_RenderPresent(renderer);
 
