@@ -50,3 +50,6 @@ DerivedData
 
 # Custom
 .clang_complete
+*.dSYM
+handmadequake_osx
+tests

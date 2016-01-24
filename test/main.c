@@ -1,5 +1,5 @@
 #include "greatest.h"
-#include "quakedef.h"
+#include "../src/quakedef.h"
 
 //
 // q_atoi
