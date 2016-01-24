@@ -4,6 +4,20 @@
 // For naming consistency
 #define sdl_pump_events() SDL_PumpEvents()
 
+// Baseline initialization.
+int32_t
+sdl_init(const char *title, uint32_t width, uint32_t height, SDL_Window **win, SDL_Renderer **ren) {
+    if(SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_TIMER) < 0) return 0;
+
+    *win = SDL_CreateWindow(title, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, width, height, 0);
+    if(!win) return 0;
+
+    *ren = SDL_CreateRenderer(*win, -1, SDL_RENDERER_PRESENTVSYNC | SDL_RENDERER_ACCELERATED);
+    if(!ren) return 0;
+
+    return 1;
+}
+
 bool
 sdl_event_exists(SDL_Event *e, uint32_t event_type) {
     return (SDL_PeepEvents(e, 1, SDL_GETEVENT, event_type, event_type));
@@ -31,21 +45,13 @@ main(int argc, const char *argv[]) {
     SDL_Window *window = NULL;
     SDL_Renderer *renderer = NULL;
 
-    // SDL window and renderer Initialization
-    if(SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_TIMER) < 0) goto error;
-
-    // Let's test our argument parser....
     int32_t width = q_atoi(com_check_parm("-width", argc, argv));
     int32_t height = q_atoi(com_check_parm("-height", argc, argv));
 
     if(!width) width = 640;
     if(!height) height = 480;
 
-    window = SDL_CreateWindow("handmadequake_osx", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, width, height, 0);
-    if(!window) goto error;
-
-    renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_PRESENTVSYNC | SDL_RENDERER_ACCELERATED);
-    if(!renderer) goto error;
+    if(!sdl_init("Handmade Quake OSX", width, height, &window, &renderer)) goto error;
 
     SDL_Event event;
 
