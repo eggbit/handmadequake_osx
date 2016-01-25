@@ -7,6 +7,24 @@ The end product of the Handmade Quake series is also going to [pretty much end u
 
 So that's the plan.  I may go all the way or I'll hit a snag and the project might not get very far.  No promises.
 
+## Differences
+This project is going to diverge from the main Handmade Quake project in several fundamental ways:
+
+#### SDL 2
+Graphics, sound, input, and event processing will all be taken care of by SDL 2.  While this project's goal is  to get everything running on OSX, I don't intend on writing any platform-specific code.
+
+#### C11
+Quake was written between 1994 and 1996 when C89 would have been the standard.  C's evolved  a lot since then and I'll be using the latest standard throughout the project.
+
+#### Functions, Naming Conventions, and Structure
+I intended on following along with the project's overall structure but I have my own preferred naming and formatting style (eg. `com_check_parm` instead of `COM_CheckParm`).  Global variables are a huge pet peeve of mind so some function definitions might change as well.
+
+Functions may also change in behavior.  For example, in the main series and in the original Quake source, the `COM_CheckParm` function simply tested for the existence of an argument.  You would then need to fetch the associated argument value manually.  In my `com_check_parm` function the return value is the parameter's associated value, if one exists.  So if you passed `-width 640` to my Quake executable, passing `"-width"` to `com_check_parm` would return `"640"`.
+
+I won't change every single function but if I see an opportunity to make a bit of code a little more convenient, I'll give it a shot.
+
+In short, don't expect a copy/paste job.
+
 # License
 The MIT License (MIT)
 
