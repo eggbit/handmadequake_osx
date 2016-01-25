@@ -107,24 +107,21 @@ q_strncpy(char *dest, const char *src, int32_t count) {
 //      /* windowed_val will contain '1' for true */
 const char *
 com_check_parm(const char *search_arg, uint32_t num_args, const char *args[]) {
-    // Loop through all available parameters.
+    char *last_arg = "";
+
+    // Loop backwards num_args amount of times.
     for(uint32_t i = num_args; i--;) {
 
-        // See if any match the parameter we're searching for.
+        // See if any arguments match the one we're searching for.
         if(q_strcmp(args[i], search_arg) == 0) {
 
-            // If we've found a match and...
-            //
-            // i + 1 < num_args
-            //      - If the next element doesn't go past the end of the array..
-            //
-            // *(args[i + 1]) != '-'
-            //      - And if first character of that next element isn't the start of a new paramenter...
-            //
-            // ? args[i + 1] : "1"
-            //      - Return the value, else return "1".
-            return (i + 1 < num_args && *(args[i + 1]) != '-') ? args[i + 1] : "1";
+            // If last_arg isn't empty or the start of a new argument, return it.
+            // Otherwise we have a boolean flag so just return a "1".
+            return (*last_arg && *last_arg != '-') ? last_arg : "1";
         }
+
+        // Save the parameter we just looked at for the next iteration of the loop;
+        last_arg = (char *)args[i];
     }
     // Parameter not found
     return NULL;
