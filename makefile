@@ -14,7 +14,7 @@ handmadequake_osx: src/main.c src/common.c
 tests: test/main.c common.o
 	$(CC) $(CFLAGS) $(TEST_IFLAGS) test/main.c common.o -o tests
 
-common.o:
+common.o: src/common.c
 	$(CC) $(CFLAGS) $(TEST_IFLAGS) -c src/common.c
 
 clean:

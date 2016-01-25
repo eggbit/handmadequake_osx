@@ -107,10 +107,8 @@ q_strncpy(char *dest, const char *src, int32_t count) {
 //      /* windowed_val will contain '1' for true */
 const char *
 com_check_parm(const char *search_arg, uint32_t num_args, const char *args[]) {
-    if(!num_args) return NULL;
-
     // Loop through all available parameters.
-    for(uint32_t i = 0; i < num_args; i++) {
+    for(uint32_t i = num_args; i--;) {
 
         // See if any match the parameter we're searching for.
         if(q_strcmp(args[i], search_arg) == 0) {
