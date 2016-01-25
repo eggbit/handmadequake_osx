@@ -5,8 +5,8 @@
 #define sdl_pump_events() SDL_PumpEvents()
 
 // Baseline initialization.
-int32_t
-sdl_init(const char *title, uint32_t width, uint32_t height, SDL_Window **win, SDL_Renderer **ren) {
+i32
+sdl_init(const char *title, u32 width, u32 height, SDL_Window **win, SDL_Renderer **ren) {
     if(SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_TIMER) < 0) return 0;
 
     *win = SDL_CreateWindow(title, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, width, height, 0);
@@ -19,7 +19,7 @@ sdl_init(const char *title, uint32_t width, uint32_t height, SDL_Window **win, S
 }
 
 bool
-sdl_event_exists(SDL_Event *e, uint32_t event_type) {
+sdl_event_exists(SDL_Event *e, u32 event_type) {
     return (SDL_PeepEvents(e, 1, SDL_GETEVENT, event_type, event_type));
 }
 
@@ -45,8 +45,8 @@ main(int argc, const char *argv[]) {
     SDL_Window *window = NULL;
     SDL_Renderer *renderer = NULL;
 
-    int32_t width = q_atoi(com_check_parm("-width", argc, argv));
-    int32_t height = q_atoi(com_check_parm("-height", argc, argv));
+    i32 width = q_atoi(com_check_parm("-width", argc, argv));
+    i32 height = q_atoi(com_check_parm("-height", argc, argv));
 
     if(!width) width = 640;
     if(!height) height = 480;
@@ -57,7 +57,7 @@ main(int argc, const char *argv[]) {
 
     // Main loop
     for(;;) {
-        uint32_t ticks_start = SDL_GetTicks();  // For use in capping the framerate below.
+        u32 ticks_start = SDL_GetTicks();  // For use in capping the framerate below.
         static SDL_Color rgb = {0, 0, 0, 255};
 
         // Event processing
@@ -78,7 +78,7 @@ main(int argc, const char *argv[]) {
         // Cap the framerate to avoid high CPU usage from SDL_PollEvent.
         //  1. Calculate our frame time: (1000 / frames_per_second_we_want)
         //  2. Subtract that from the current ticks subtracted by the ticks we got at the start of the frame.
-        int32_t sleep_time = (1000 / 60) - (SDL_GetTicks() - ticks_start);
+        i32 sleep_time = (1000 / 60) - (SDL_GetTicks() - ticks_start);
 
         // If sleep_time is greater than zero, sleep for that amount of time.
         if(sleep_time > 0) SDL_Delay(sleep_time);

@@ -212,7 +212,7 @@ SUITE(test_q_strlen) {
 //
 TEST com_check_parm_string(void) {
     const char *argv[] = {"", "-width", "640", "-height", "480", "-setalpha", "0x4cb"};
-    int32_t args = sizeof(argv) / sizeof(argv[0]);
+    i32 args = sizeof(argv) / sizeof(argv[0]);
 
     ASSERT_STR_EQ("480", com_check_parm("-height", args, argv));
     ASSERT_STR_EQ("640", com_check_parm("-width", args, argv));
@@ -222,7 +222,7 @@ TEST com_check_parm_string(void) {
 
 TEST com_check_parm_bool(void) {
     const char *argv[] = {"", "-startwindowed", "-setalpha", "50"};
-    int32_t args = sizeof(argv) / sizeof(argv[0]);
+    i32 args = sizeof(argv) / sizeof(argv[0]);
 
     ASSERT_STR_EQ("1", com_check_parm("-startwindowed", args, argv));
     PASS();
@@ -230,7 +230,7 @@ TEST com_check_parm_bool(void) {
 
 TEST com_check_parm_bool_at_end(void) {
     const char *argv[] = {"", "-startwindowed"};
-    int32_t args = sizeof(argv) / sizeof(argv[0]);
+    i32 args = sizeof(argv) / sizeof(argv[0]);
 
     ASSERT_STR_EQ("1", com_check_parm("-startwindowed", args, argv));
     PASS();
@@ -238,7 +238,7 @@ TEST com_check_parm_bool_at_end(void) {
 
 TEST com_check_parm_not_found(void) {
     const char *argv[] = {"", "-width", "640"};
-    int32_t args = sizeof(argv) / sizeof(argv[0]);
+    i32 args = sizeof(argv) / sizeof(argv[0]);
 
     ASSERT_FALSE(com_check_parm("-xyz", args, argv));
     PASS();
@@ -246,7 +246,7 @@ TEST com_check_parm_not_found(void) {
 
 TEST com_check_parm_no_argv(void) {
     const char *argv[] = {""};
-    int32_t args = sizeof(argv) / sizeof(argv[0]);
+    i32 args = sizeof(argv) / sizeof(argv[0]);
 
     ASSERT_FALSE(com_check_parm("-height", args, argv));
     PASS();

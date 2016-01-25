@@ -1,7 +1,7 @@
 #include "common.h"
 
 // Custom version of strcmp from string.h.  Same functionality and return values.
-int32_t
+i32
 q_strcmp(const char *str1, const char *str2) {
     if(!str1 || !str2) return -2;
 
@@ -16,14 +16,14 @@ q_strcmp(const char *str1, const char *str2) {
 }
 
 // Updated version of atoi from stdlib.h.  Can handle hexadecimal and integer strings.
-int32_t
+i32
 q_atoi(const char *numstr) {
     // Check for null string
     if(!numstr) return 0;
 
-    int32_t sign = 1;
-    int32_t num = 0;
-    int32_t base = 10;
+    i32 sign = 1;
+    i32 num = 0;
+    i32 base = 10;
 
     while(*numstr) {
         // Check for signed/unsigned
@@ -81,7 +81,7 @@ q_strcpy(char *dest, const char *src) {
 }
 
 void
-q_strncpy(char *dest, const char *src, int32_t count) {
+q_strncpy(char *dest, const char *src, i32 count) {
     if(!src || count < 0) return;
 
     while(*src && count) {
@@ -106,11 +106,11 @@ q_strncpy(char *dest, const char *src, int32_t count) {
 //      /* alpha_val will contain '50' */
 //      /* windowed_val will contain '1' for true */
 const char *
-com_check_parm(const char *search_arg, uint32_t num_args, const char *args[]) {
+com_check_parm(const char *search_arg, u32 num_args, const char *args[]) {
     char *last_arg = "";
 
     // Loop backwards num_args amount of times.
-    for(uint32_t i = num_args; i--;) {
+    for(u32 i = num_args; i--;) {
 
         // See if any arguments match the one we're searching for.
         if(q_strcmp(args[i], search_arg) == 0) {
