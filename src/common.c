@@ -1,4 +1,4 @@
-#include "common.h"
+#include "quakedef.h"
 
 // Custom version of strcmp from string.h.  Same functionality and return values.
 i32

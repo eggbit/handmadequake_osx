@@ -1,32 +1,4 @@
 #include "quakedef.h"
-#include <sdl.h>
-
-// For naming consistency
-#define sdl_pump_events() SDL_PumpEvents()
-
-// Baseline initialization.
-i32
-sdl_init(const char *title, u32 width, u32 height, SDL_Window **win, SDL_Renderer **ren) {
-    if(SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_TIMER) < 0) return 0;
-
-    *win = SDL_CreateWindow(title, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, width, height, 0);
-    if(!win) return 0;
-
-    *ren = SDL_CreateRenderer(*win, -1, SDL_RENDERER_PRESENTVSYNC | SDL_RENDERER_ACCELERATED);
-    if(!ren) return 0;
-
-    return 1;
-}
-
-bool
-sdl_event_exists(SDL_Event *e, u32 event_type) {
-    return (SDL_PeepEvents(e, 1, SDL_GETEVENT, event_type, event_type));
-}
-
-void
-sdl_flush_events(void) {
-    SDL_FlushEvents(SDL_FIRSTEVENT, SDL_LASTEVENT);
-}
 
 SDL_Color
 sdl_handle_mousebuttondown() {

@@ -8,8 +8,8 @@ TEST_IFLAGS = -I/src
 
 all: handmadequake_osx
 
-handmadequake_osx: src/main.c src/common.c
-	$(CC) $(CFLAGS) $(IFLAGS) $(LFLAGS) src/main.c src/common.c -o handmadequake_osx
+handmadequake_osx: src/main.c src/common.c src/sdl_helper.c
+	$(CC) $(CFLAGS) $(IFLAGS) $(LFLAGS) src/main.c src/common.c src/sdl_helper.c -o handmadequake_osx
 
 tests: test/main.c common.o
 	$(CC) $(CFLAGS) $(TEST_IFLAGS) test/main.c common.o -o tests
