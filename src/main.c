@@ -26,10 +26,12 @@ main(int argc, const char *argv[]) {
     if(!sdl_init("Handmade Quake OSX", width, height, &window, &renderer)) goto error;
 
     SDL_Event event;
+    double seconds_per_tick = 1.0 / (double)SDL_GetPerformanceFrequency();
 
     // Main loop
     for(;;) {
-        u32 ticks_start = SDL_GetTicks();  // For use in capping the framerate below.
+        u64 ticks_start = SDL_GetPerformanceCounter();
+
         static SDL_Color rgb = {0, 0, 0, 255};
 
         // Event processing
@@ -47,13 +49,9 @@ main(int argc, const char *argv[]) {
         SDL_RenderClear(renderer);
         SDL_RenderPresent(renderer);
 
-        // Cap the framerate to avoid high CPU usage from SDL_PollEvent.
-        //  1. Calculate our frame time: (1000 / frames_per_second_we_want)
-        //  2. Subtract that from the current ticks subtracted by the ticks we got at the start of the frame.
-        i32 sleep_time = (1000 / 60) - (SDL_GetTicks() - ticks_start);
-
-        // If sleep_time is greater than zero, sleep for that amount of time.
-        if(sleep_time > 0) SDL_Delay(sleep_time);
+        u64 ticks_elapsed = SDL_GetPerformanceCounter() - ticks_start;
+        double secs_passed = (double)ticks_elapsed * seconds_per_tick;
+        printf("interval: %llu\nseconds passed: %.9f\n\n", ticks_elapsed, secs_passed);
     }
 
 error:

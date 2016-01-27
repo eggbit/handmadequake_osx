@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		E0365A591C387D67005EAD9C /* main.c in Sources */ = {isa = PBXBuildFile; fileRef = E0365A581C387D67005EAD9C /* main.c */; };
+		E03B59801C5972D500EE442D /* sdl_helper.c in Sources */ = {isa = PBXBuildFile; fileRef = E03B597E1C5972D500EE442D /* sdl_helper.c */; };
 		E09DFBD71C4941CA0010D72F /* main.c in Sources */ = {isa = PBXBuildFile; fileRef = E09DFBD61C4941CA0010D72F /* main.c */; };
 		E0B7CD391C494381004983EE /* common.c in Sources */ = {isa = PBXBuildFile; fileRef = E0F5A8361C48200E0000FA62 /* common.c */; };
 		E0F5A8381C48200E0000FA62 /* common.c in Sources */ = {isa = PBXBuildFile; fileRef = E0F5A8361C48200E0000FA62 /* common.c */; };
@@ -38,6 +39,8 @@
 		E0365A551C387D67005EAD9C /* handmakequake_osx */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = handmakequake_osx; sourceTree = BUILT_PRODUCTS_DIR; };
 		E0365A581C387D67005EAD9C /* main.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = main.c; sourceTree = "<group>"; };
 		E037D0FB1C4827A1003D352A /* quakedef.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = quakedef.h; sourceTree = "<group>"; };
+		E03B597E1C5972D500EE442D /* sdl_helper.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = sdl_helper.c; sourceTree = "<group>"; };
+		E03B597F1C5972D500EE442D /* sdl_helper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = sdl_helper.h; sourceTree = "<group>"; };
 		E09DFBD41C4941CA0010D72F /* test */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = test; sourceTree = BUILT_PRODUCTS_DIR; };
 		E09DFBD61C4941CA0010D72F /* main.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = main.c; sourceTree = "<group>"; };
 		E0B7CD381C494359004983EE /* greatest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = greatest.h; sourceTree = "<group>"; };
@@ -84,6 +87,8 @@
 		E0365A571C387D67005EAD9C /* src */ = {
 			isa = PBXGroup;
 			children = (
+				E03B597E1C5972D500EE442D /* sdl_helper.c */,
+				E03B597F1C5972D500EE442D /* sdl_helper.h */,
 				E0365A581C387D67005EAD9C /* main.c */,
 				E0F5A8361C48200E0000FA62 /* common.c */,
 				E0F5A8371C48200E0000FA62 /* common.h */,
@@ -180,6 +185,7 @@
 			files = (
 				E0F5A8381C48200E0000FA62 /* common.c in Sources */,
 				E0365A591C387D67005EAD9C /* main.c in Sources */,
+				E03B59801C5972D500EE442D /* sdl_helper.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
