@@ -1,5 +1,20 @@
 #include "quakedef.h"
 
+// Returns ticks as a double.
+#define sys_init_time() ((double)SDL_GetPerformanceCounter())
+
+// Returns the total amount of seconds the game has been running.
+double
+sys_get_time(double last_ticks) {
+    static double total_time = 0;
+    static double seconds_per_tick = 0;
+
+    if(!seconds_per_tick) seconds_per_tick = 1.0 / (double)SDL_GetPerformanceFrequency();
+    double ticks_elapsed = (double)SDL_GetPerformanceCounter() - last_ticks;
+
+    return total_time += ticks_elapsed * seconds_per_tick;
+}
+
 SDL_Color
 sdl_handle_mousebuttondown() {
     SDL_Color c = {
@@ -26,12 +41,10 @@ main(int argc, const char *argv[]) {
     if(!sdl_init("Handmade Quake OSX", width, height, &window, &renderer)) goto error;
 
     SDL_Event event;
-    double seconds_per_tick = 1.0 / (double)SDL_GetPerformanceFrequency();
 
     // Main loop
     for(;;) {
-        u64 ticks_start = SDL_GetPerformanceCounter();
-
+        double ticks_start = sys_init_time();
         static SDL_Color rgb = {0, 0, 0, 255};
 
         // Event processing
@@ -49,9 +62,9 @@ main(int argc, const char *argv[]) {
         SDL_RenderClear(renderer);
         SDL_RenderPresent(renderer);
 
-        u64 ticks_elapsed = SDL_GetPerformanceCounter() - ticks_start;
-        double secs_passed = (double)ticks_elapsed * seconds_per_tick;
-        printf("interval: %llu\nseconds passed: %.9f\n\n", ticks_elapsed, secs_passed);
+        double total_time = sys_get_time(ticks_start);
+
+        printf("total time passed: %.9f\n", total_time);
     }
 
 error:
