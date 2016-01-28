@@ -1,4 +1,4 @@
-#include "quakedef.h"
+#include "sdl_helper.h"
 
 // Baseline initialization.
 i32
