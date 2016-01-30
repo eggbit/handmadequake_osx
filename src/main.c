@@ -1,18 +1,23 @@
 #include "quakedef.h"
 
 // Returns ticks as a double.
-#define sys_init_time() ((double)SDL_GetPerformanceCounter())
+#define sys_get_ticks() ((double)SDL_GetPerformanceCounter())
 
 // Returns the total amount of seconds the game has been running.
 double
-sys_get_time(double last_ticks) {
+sys_get_total_secs(double start_ticks, double seconds_per_tick) {
     static double total_time = 0;
-    static double seconds_per_tick = 0;
-
-    if(!seconds_per_tick) seconds_per_tick = 1.0 / (double)SDL_GetPerformanceFrequency();
-    double ticks_elapsed = (double)SDL_GetPerformanceCounter() - last_ticks;
+    double ticks_elapsed = sys_get_ticks() - start_ticks;
 
     return total_time += ticks_elapsed * seconds_per_tick;
+}
+
+// Returns the amount of milliseconds that have passed since start_ticks.
+double
+sys_get_elapsed_ms(double start_ticks, double seconds_per_tick) {
+    double ticks_elapsed = sys_get_ticks() - start_ticks;
+
+    return ticks_elapsed * seconds_per_tick * 1000.0;
 }
 
 SDL_Color
@@ -41,10 +46,11 @@ main(int argc, const char *argv[]) {
     if(!sdl_init("Handmade Quake OSX", width, height, &window, &renderer)) goto error;
 
     SDL_Event event;
+    double seconds_per_tick = 1.0 / (double)SDL_GetPerformanceFrequency();
 
     // Main loop
     for(;;) {
-        double ticks_start = sys_init_time();
+        double ticks_start = sys_get_ticks();
         static SDL_Color rgb = {0, 0, 0, 255};
 
         // Event processing
@@ -62,9 +68,11 @@ main(int argc, const char *argv[]) {
         SDL_RenderClear(renderer);
         SDL_RenderPresent(renderer);
 
-        double total_time = sys_get_time(ticks_start);
+        double total_time = sys_get_total_secs(ticks_start, seconds_per_tick);
+        double ms_elapsed = sys_get_elapsed_ms(ticks_start, seconds_per_tick);
 
-        printf("total time passed: %.9f\n", total_time);
+        // NOTE: Very inconsistent frame times when running windowed vsync. Better fullscreen but not stable 16.6ms
+        printf("milliseconds passed: %.9f - total time passed: %.9f\n", ms_elapsed, total_time);
     }
 
 error:
