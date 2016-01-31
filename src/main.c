@@ -1,23 +1,23 @@
 #include "quakedef.h"
 
+// IDEA: Timer structure?
+
 // Returns ticks as a double.
 #define sys_get_ticks() ((double)SDL_GetPerformanceCounter())
+#define sys_get_elapsed_ticks(ticks) (sys_get_ticks() - ticks)
 
 // Returns the total amount of seconds the game has been running.
 double
 sys_get_total_secs(double start_ticks, double seconds_per_tick) {
     static double total_time = 0;
-    double ticks_elapsed = sys_get_ticks() - start_ticks;
 
-    return total_time += ticks_elapsed * seconds_per_tick;
+    return total_time += sys_get_elapsed_ticks(start_ticks) * seconds_per_tick;
 }
 
 // Returns the amount of milliseconds that have passed since start_ticks.
 double
 sys_get_elapsed_ms(double start_ticks, double seconds_per_tick) {
-    double ticks_elapsed = sys_get_ticks() - start_ticks;
-
-    return ticks_elapsed * seconds_per_tick * 1000.0;
+    return sys_get_elapsed_ticks(start_ticks) * seconds_per_tick * 1000.0;
 }
 
 SDL_Color
