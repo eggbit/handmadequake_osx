@@ -1,4 +1,5 @@
 #include "quakedef.h"
+#include "host.h"
 
 // IDEA: Timer structure?
 
@@ -46,7 +47,12 @@ main(int argc, const char *argv[]) {
     if(!sdl_init("Handmade Quake OSX", width, height, &window, &renderer)) goto error;
 
     SDL_Event event;
+
     double seconds_per_tick = 1.0 / (double)SDL_GetPerformanceFrequency();
+    double oldtime = 0.0, newtime = 0.0, timeaccumulated = 0.0;
+    double target_fps = 1.0 / 60.0;
+
+    host_init();
 
     // Main loop
     for(;;) {
@@ -64,14 +70,24 @@ main(int argc, const char *argv[]) {
         sdl_flush_events();
 
         // Rendering
+        newtime = sys_get_total_secs(ticks_start, seconds_per_tick);
+        timeaccumulated += newtime - oldtime;
+        oldtime = newtime;
+
+        if(timeaccumulated > target_fps) {
+            host_frame(target_fps);
+            timeaccumulated -= target_fps;
+        }
+
         SDL_SetRenderDrawColor(renderer, rgb.r, rgb.g, rgb.b, rgb.a);
         SDL_RenderClear(renderer);
         SDL_RenderPresent(renderer);
 
+        // NOTE: sys_get_total_secs must be called at the end of rendering.
         double total_time = sys_get_total_secs(ticks_start, seconds_per_tick);
         double ms_elapsed = sys_get_elapsed_ms(ticks_start, seconds_per_tick);
 
-        // NOTE: Very inconsistent frame times when running windowed vsync. Better fullscreen but not stable 16.6ms
+        // NOTE: Timing per vsync very inconsistent when windowed.
         printf("milliseconds passed: %.9f - total time passed: %.9f\n", ms_elapsed, total_time);
     }
 
@@ -79,6 +95,7 @@ error:
     printf("ERROR: %s", SDL_GetError());
 
 exit:
+    host_shutdown();
     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);
     SDL_Quit();
