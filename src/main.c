@@ -1,24 +1,19 @@
 #include "quakedef.h"
 #include "host.h"
 
-// IDEA: Timer structure?
-
-// Returns ticks as a double.
-#define sys_get_ticks() ((double)SDL_GetPerformanceCounter())
-#define sys_get_elapsed_ticks(ticks) (sys_get_ticks() - ticks)
-
-// Returns the total amount of seconds the game has been running.
+// Returns the game's total running time.
+// time_counter is a variable that's been initialized outside of the game loop with
+// SDL_GetPerformanceCounter.
 double
-sys_get_total_secs(double start_ticks, double seconds_per_tick) {
-    static double total_time = 0;
+sys_float_time(u64 *time_counter, double seconds_per_tick) {
+    static double time_passed = 0;
 
-    return total_time += sys_get_elapsed_ticks(start_ticks) * seconds_per_tick;
-}
+    u64 counter = SDL_GetPerformanceCounter();
+    u64 interval = counter - *time_counter;
 
-// Returns the amount of milliseconds that have passed since start_ticks.
-double
-sys_get_elapsed_ms(double start_ticks, double seconds_per_tick) {
-    return sys_get_elapsed_ticks(start_ticks) * seconds_per_tick * 1000.0;
+    *time_counter = counter;
+
+    return time_passed += (double)interval * seconds_per_tick;
 }
 
 SDL_Color
@@ -46,18 +41,17 @@ main(int argc, const char *argv[]) {
 
     if(!sdl_init("Handmade Quake OSX", width, height, &window, &renderer)) goto error;
 
-    double seconds_per_tick = 1.0 / (double)SDL_GetPerformanceFrequency();
-    double oldtime = 0.0, newtime = 0.0, timeaccumulated = 0.0;
-    double target_fps = 1.0 / 60.0;
-
+    host_init();
     SDL_Color rgb = {0, 0, 0, 255};
 
-    host_init();
+    // Set up timers and frame rate
+    double seconds_per_tick = 1.0 / (double)SDL_GetPerformanceFrequency();
+    double newtime = 0.0, oldtime = 0.0, time_accumulated = 0.0;
+    double target_fps = 1.0 / 30.0;
+    u64 time_count = SDL_GetPerformanceCounter();
 
     // Main loop
     for(;;) {
-        double ticks_start = sys_get_ticks();
-
         // Event processing
         SDL_Event event;
         sdl_pump_events();
@@ -69,12 +63,13 @@ main(int argc, const char *argv[]) {
 
         sdl_flush_events();
 
-        // Timing
-        newtime = sys_get_total_secs(ticks_start, seconds_per_tick);
-        timeaccumulated += newtime - oldtime;
+        // Update timers
+        newtime = sys_float_time(&time_count, seconds_per_tick);
+        time_accumulated += newtime - oldtime;
         oldtime = newtime;
 
-        if(timeaccumulated > target_fps) {
+        if(time_accumulated > target_fps)
+        {
             // Rendering
             host_frame(target_fps);
 
@@ -82,17 +77,8 @@ main(int argc, const char *argv[]) {
             SDL_RenderClear(renderer);
             SDL_RenderPresent(renderer);
 
-            timeaccumulated -= target_fps;
+            time_accumulated -= target_fps;
         }
-
-        // NOTE: sys_get_elapsed_ms must be called at the end of rendering.
-        // TODO: Timer functions.
-        // double total_time = sys_get_total_secs(ticks_start, seconds_per_tick);
-        // double ms_elapsed = sys_get_elapsed_ms(ticks_start, seconds_per_tick);
-        sys_get_elapsed_ms(ticks_start, seconds_per_tick);
-
-        // NOTE: Timing per vsync very inconsistent when windowed.
-        // printf("milliseconds passed: %.9f - total time passed: %.9f\n", ms_elapsed, total_time);
     }
 
 error:
