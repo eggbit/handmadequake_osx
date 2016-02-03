@@ -46,8 +46,7 @@ main(int argc, const char *argv[]) {
 
     // Set up timers and frame rate
     double seconds_per_tick = 1.0 / (double)SDL_GetPerformanceFrequency();
-    double newtime = 0.0, oldtime = 0.0, time_accumulated = 0.0;
-    double target_fps = 1.0 / 30.0;
+    double newtime = 0.0, oldtime = 0.0;
     u64 time_count = SDL_GetPerformanceCounter();
 
     // Main loop
@@ -65,20 +64,13 @@ main(int argc, const char *argv[]) {
 
         // Update timers
         newtime = sys_float_time(&time_count, seconds_per_tick);
-        time_accumulated += newtime - oldtime;
+        host_frame(newtime - oldtime);
         oldtime = newtime;
 
-        if(time_accumulated > target_fps)
-        {
-            // Rendering
-            host_frame(target_fps);
+        SDL_SetRenderDrawColor(renderer, rgb.r, rgb.g, rgb.b, rgb.a);
+        SDL_RenderClear(renderer);
+        SDL_RenderPresent(renderer);
 
-            SDL_SetRenderDrawColor(renderer, rgb.r, rgb.g, rgb.b, rgb.a);
-            SDL_RenderClear(renderer);
-            SDL_RenderPresent(renderer);
-
-            time_accumulated -= target_fps;
-        }
     }
 
 error:
