@@ -1,6 +1,8 @@
 #ifndef sdl_helper_h
 #define sdl_helper_h
 
+#include "quakedef.h"
+
 // Helper macros
 #define sdl_pump_events() SDL_PumpEvents()
 #define sdl_flush_events() SDL_FlushEvents(SDL_FIRSTEVENT, SDL_LASTEVENT)

@@ -1,4 +1,20 @@
 #include "quakedef.h"
+#include "host.h"
+
+// Returns the game's total running time.
+// time_counter is a variable that's been initialized outside of the game loop with
+// SDL_GetPerformanceCounter.
+double
+sys_float_time(u64 *time_counter, double seconds_per_tick) {
+    static double time_passed = 0;
+
+    u64 counter = SDL_GetPerformanceCounter();
+    u64 interval = counter - *time_counter;
+
+    *time_counter = counter;
+
+    return time_passed += (double)interval * seconds_per_tick;
+}
 
 SDL_Color
 sdl_handle_mousebuttondown() {
@@ -25,14 +41,18 @@ main(int argc, const char *argv[]) {
 
     if(!sdl_init("Handmade Quake OSX", width, height, &window, &renderer)) goto error;
 
-    SDL_Event event;
+    host_init();
+    SDL_Color rgb = {0, 0, 0, 255};
+
+    // Set up timers and frame rate
+    double seconds_per_tick = 1.0 / (double)SDL_GetPerformanceFrequency();
+    double newtime = 0.0, oldtime = 0.0;
+    u64 time_count = SDL_GetPerformanceCounter();
 
     // Main loop
     for(;;) {
-        u32 ticks_start = SDL_GetTicks();  // For use in capping the framerate below.
-        static SDL_Color rgb = {0, 0, 0, 255};
-
         // Event processing
+        SDL_Event event;
         sdl_pump_events();
 
         if(sdl_event_exists(&event, SDL_QUIT)) goto exit;
@@ -42,24 +62,22 @@ main(int argc, const char *argv[]) {
 
         sdl_flush_events();
 
-        // Rendering
+        // Update timers
+        newtime = sys_float_time(&time_count, seconds_per_tick);
+        host_frame(newtime - oldtime);
+        oldtime = newtime;
+
         SDL_SetRenderDrawColor(renderer, rgb.r, rgb.g, rgb.b, rgb.a);
         SDL_RenderClear(renderer);
         SDL_RenderPresent(renderer);
 
-        // Cap the framerate to avoid high CPU usage from SDL_PollEvent.
-        //  1. Calculate our frame time: (1000 / frames_per_second_we_want)
-        //  2. Subtract that from the current ticks subtracted by the ticks we got at the start of the frame.
-        i32 sleep_time = (1000 / 60) - (SDL_GetTicks() - ticks_start);
-
-        // If sleep_time is greater than zero, sleep for that amount of time.
-        if(sleep_time > 0) SDL_Delay(sleep_time);
     }
 
 error:
     printf("ERROR: %s", SDL_GetError());
 
 exit:
+    host_shutdown();
     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);
     SDL_Quit();
