@@ -1,25 +1,29 @@
 #include "quakedef.h"
 #include "host.h"
 
-// Returns the game's total running time.
-// time_counter is a variable that's been initialized outside of the game loop with
-// SDL_GetPerformanceCounter.
-double
-sys_float_time(u64 *time_counter, double seconds_per_tick) {
-    static double time_passed = 0;
+struct Timer {
+    double seconds_per_tick;
+    double oldtime;
+    double delta;
+    double time_passed;
+    u64 time_count;
+};
 
-    u64 counter = SDL_GetPerformanceCounter();
-    u64 interval = counter - *time_counter;
-
-    *time_counter = counter;
-
-    return time_passed += (double)interval * seconds_per_tick;
+void
+timer_init(struct Timer *t) {
+    t->seconds_per_tick = 1.0 / (double)SDL_GetPerformanceFrequency();
+    t->time_count = SDL_GetPerformanceCounter();
 }
 
 void
-sdl_toggle_fullscreen(SDL_Window *w) {
-    bool is_fullscreen = SDL_GetWindowFlags(w) & SDL_WINDOW_FULLSCREEN;
-    is_fullscreen ? SDL_SetWindowFullscreen(w, 0) : SDL_SetWindowFullscreen(w, SDL_WINDOW_FULLSCREEN);
+timer_update(struct Timer *t) {
+    u64 counter = SDL_GetPerformanceCounter();
+    u64 interval = counter - t->time_count;
+
+    t->time_count = counter;
+    t->time_passed += (double)interval * t->seconds_per_tick;
+    t->delta = t->time_passed - t->oldtime;
+    t->oldtime = t->time_passed;
 }
 
 int
@@ -28,6 +32,8 @@ main(int argc, const char *argv[]) {
     SDL_Window *window = NULL;
     SDL_Renderer *renderer = NULL;
     SDL_Texture *output_texture = NULL; // NOTE: output_buffer will be copied to this texture.
+
+    struct Timer timer;
 
     i32 width = q_atoi(com_check_parm("-width", argc, argv));
     i32 height = q_atoi(com_check_parm("-height", argc, argv));
@@ -42,15 +48,11 @@ main(int argc, const char *argv[]) {
     output_buffer = malloc(width * height * sizeof(i32));
 
     host_init();
+    timer_init(&timer);
 
-    // Set up timers and frame rate
-    double seconds_per_tick = 1.0 / (double)SDL_GetPerformanceFrequency();
-    double newtime = 0.0, oldtime = 0.0;
-    u64 time_count = SDL_GetPerformanceCounter();
-
-    // Main loop
+    // NOTE: Main loop
     for(;;) {
-        // Event processing
+        // NOTE: Event processing
         SDL_Event event;
         sdl_pump_events();
 
@@ -59,10 +61,9 @@ main(int argc, const char *argv[]) {
 
         sdl_flush_events();
 
-        // Update timers
-        newtime = sys_float_time(&time_count, seconds_per_tick);
-        host_frame(newtime - oldtime);
-        oldtime = newtime;
+        // NOTE: Update timers and call host_frame.
+        timer_update(&timer);
+        host_frame(timer.delta);
 
         i32 *memory_walker = (i32 *)output_buffer;
 
@@ -77,10 +78,7 @@ main(int argc, const char *argv[]) {
             }
         }
 
-        SDL_UpdateTexture(output_texture, NULL, output_buffer, width * sizeof(i32));
-        SDL_RenderClear(renderer);
-        SDL_RenderCopy(renderer, output_texture, NULL, NULL);
-        SDL_RenderPresent(renderer);
+        sdl_display_buffer(renderer, output_buffer, output_texture, width * sizeof(i32));
     }
 
 error:

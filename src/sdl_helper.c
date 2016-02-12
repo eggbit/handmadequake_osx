@@ -13,3 +13,9 @@ sdl_init(const char *title, u32 width, u32 height, SDL_Window **win, SDL_Rendere
 
     return 1;
 }
+
+void
+sdl_toggle_fullscreen(SDL_Window *w) {
+    bool is_fullscreen = SDL_GetWindowFlags(w) & SDL_WINDOW_FULLSCREEN;
+    is_fullscreen ? SDL_SetWindowFullscreen(w, 0) : SDL_SetWindowFullscreen(w, SDL_WINDOW_FULLSCREEN);
+}
