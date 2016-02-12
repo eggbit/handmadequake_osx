@@ -16,22 +16,18 @@ sys_float_time(u64 *time_counter, double seconds_per_tick) {
     return time_passed += (double)interval * seconds_per_tick;
 }
 
-SDL_Color
-sdl_handle_mousebuttondown() {
-    SDL_Color c = {
-        .r = rand() % 255,
-        .g = rand() % 255,
-        .b = rand() % 255,
-        .a = rand() % 255
-    };
-
-    return c;
+void
+sdl_toggle_fullscreen(SDL_Window *w) {
+    bool is_fullscreen = SDL_GetWindowFlags(w) & SDL_WINDOW_FULLSCREEN;
+    is_fullscreen ? SDL_SetWindowFullscreen(w, 0) : SDL_SetWindowFullscreen(w, SDL_WINDOW_FULLSCREEN);
 }
 
 int
 main(int argc, const char *argv[]) {
+    void *output_buffer = NULL;
     SDL_Window *window = NULL;
     SDL_Renderer *renderer = NULL;
+    SDL_Texture *output_texture = NULL; // NOTE: output_buffer will be copied to this texture.
 
     i32 width = q_atoi(com_check_parm("-width", argc, argv));
     i32 height = q_atoi(com_check_parm("-height", argc, argv));
@@ -41,8 +37,11 @@ main(int argc, const char *argv[]) {
 
     if(!sdl_init("Handmade Quake OSX", width, height, &window, &renderer)) goto error;
 
+    // NOTE: Set up output_texture and output_buffer.
+    output_texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGB888, SDL_TEXTUREACCESS_STREAMING, width, height);
+    output_buffer = malloc(width * height * sizeof(i32));
+
     host_init();
-    SDL_Color rgb = {0, 0, 0, 255};
 
     // Set up timers and frame rate
     double seconds_per_tick = 1.0 / (double)SDL_GetPerformanceFrequency();
@@ -56,9 +55,7 @@ main(int argc, const char *argv[]) {
         sdl_pump_events();
 
         if(sdl_event_exists(&event, SDL_QUIT)) goto exit;
-
-        if(sdl_event_exists(&event, SDL_MOUSEBUTTONDOWN))
-            rgb = sdl_handle_mousebuttondown();
+        if(sdl_event_exists(&event, SDL_KEYUP)) sdl_toggle_fullscreen(window);
 
         sdl_flush_events();
 
@@ -67,10 +64,23 @@ main(int argc, const char *argv[]) {
         host_frame(newtime - oldtime);
         oldtime = newtime;
 
-        SDL_SetRenderDrawColor(renderer, rgb.r, rgb.g, rgb.b, rgb.a);
-        SDL_RenderClear(renderer);
-        SDL_RenderPresent(renderer);
+        i32 *memory_walker = (i32 *)output_buffer;
 
+        // NOTE: Let there be color.
+        for(i32 h = 0; h < height; h++) {
+            for(i32 w = 0; w < width; w++) {
+                u8 red = rand() % 256;
+                u8 green = rand() % 256;
+                u8 blue = rand() % 256;
+
+                *memory_walker++ = ((red << 16) | (green << 8) | blue);
+            }
+        }
+
+        SDL_UpdateTexture(output_texture, NULL, output_buffer, width * sizeof(i32));
+        SDL_RenderClear(renderer);
+        SDL_RenderCopy(renderer, output_texture, NULL, NULL);
+        SDL_RenderPresent(renderer);
     }
 
 error:
@@ -78,6 +88,7 @@ error:
 
 exit:
     host_shutdown();
+    SDL_DestroyTexture(output_texture);
     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);
     SDL_Quit();
