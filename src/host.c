@@ -1,17 +1,14 @@
 #include "host.h"
 
-static double real_time, old_real_time, host_frame_time = 0.0;
-
 bool
 host_filter_time(double time) {
+    static double real_time, old_real_time = 0.0;
+
     real_time += time;
-
-    if(real_time - old_real_time < 1.0 / 72.0) return false;
-
-    host_frame_time = real_time - old_real_time;
+    double delta = real_time - old_real_time; // == host_frame_time
     old_real_time = real_time;
 
-    return true;
+    return (delta < 1.0 / 72.0) ? false : true;
 }
 
 void

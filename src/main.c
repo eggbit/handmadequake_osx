@@ -1,3 +1,5 @@
+// TODO: SDL timing while windowed is very, very off.
+
 #include "quakedef.h"
 #include "host.h"
 
