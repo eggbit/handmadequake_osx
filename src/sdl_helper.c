@@ -14,6 +14,11 @@ sdl_init(const char *title, u32 width, u32 height, SDL_Window **win, SDL_Rendere
     return 1;
 }
 
+i32
+sdl_convert_pixels(SDL_Surface *s, u32 format, void *pixels, i32 pitch) {
+    return SDL_ConvertPixels(s->w, s->h, s->format->format, s->pixels, s->pitch, format, pixels, pitch);
+}
+
 void
 sdl_toggle_fullscreen(SDL_Window *w) {
     bool is_fullscreen = SDL_GetWindowFlags(w) & SDL_WINDOW_FULLSCREEN;

@@ -19,10 +19,10 @@ void
 host_frame(double timestep) {
     if(!host_filter_time(timestep)) return;
 
-    static u8 frame = 0;
-    if(frame >= 72) frame = 0;
-
-    printf("Frame: %d\n", ++frame);
+    // static u8 frame = 0;
+    // if(frame >= 72) frame = 0;
+    //
+    // printf("Frame: %d\n", ++frame);
 }
 
 void
