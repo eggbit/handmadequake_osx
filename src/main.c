@@ -2,6 +2,7 @@
 
 #include "quakedef.h"
 #include "host.h"
+#include <time.h>
 
 struct Timer {
     double seconds_per_tick;
@@ -39,27 +40,33 @@ draw_rect(SDL_Surface *s, i32 x, i32 y, i32 rect_width, i32 rect_height, u32 col
 
     // NOTE: First pixel position.
     buffer += (s->w * bpp * y) + (x * bpp);
-    u8 *buffer_walker_8 = buffer;
-    i32 *buffer_walker = (i32 *)buffer;
 
-    for(i32 y = 0; y < rect_height; y++) {
-        for(i32 x = 0; x < rect_width; x++) {
-            if(bpp == 1) {
-                *buffer_walker_8 = color;
-                buffer_walker_8++;
-            }
-            else {
+    // TODO: Clean this up.
+    if(bpp == 1) {
+        u8 *buffer_walker = buffer;
+
+        for(i32 y = 0; y < rect_height; y++) {
+            for(i32 x = 0; x < rect_width; x++) {
                 *buffer_walker = color;
                 buffer_walker++;
             }
+
+            buffer += s->w * bpp;
+            buffer_walker = buffer;
         }
+    }
+    else if(bpp == 4) {
+        i32 *buffer_walker = (i32 *)buffer;
 
-        buffer += s->w * bpp;
+        for(i32 y = 0; y < rect_height; y++) {
+            for(i32 x = 0; x < rect_width; x++) {
+                *buffer_walker = color;
+                buffer_walker++;
+            }
 
-        if(bpp == 1)
-            buffer_walker_8 = buffer;
-        else
+            buffer += s->w * bpp;
             buffer_walker = (i32 *)buffer;
+        }
     }
 }
 
@@ -88,20 +95,24 @@ main(int argc, const char *argv[]) {
     work_surface = SDL_CreateRGBSurface(0, width, height, 8, 0, 0, 0, 0);
     output_surface = SDL_CreateRGBSurface(0, width, height, 32, 0, 0, 0, 0);
     output_texture = SDL_CreateTexture(renderer, output_format, SDL_TEXTUREACCESS_STREAMING, width, height);
+    u8 bpp = work_surface->format->BytesPerPixel;
 
-    // NOTE: Create and set the palette.
-    SDL_Color c[255];
+    // NOTE: Create and set the palette if 8-bit.
+    if(bpp == 1) {
+        SDL_Color c[255];
 
-    for(u8 i = 255; i--;) {
-        c[i].r = rand() % 255;
-        c[i].g = rand() % 255;
-        c[i].b = rand() % 255;
+        for(u8 i = 255; i--;) {
+            c[i].r = rand() % 255;
+            c[i].g = rand() % 255;
+            c[i].b = rand() % 255;
+        }
+
+        SDL_SetPaletteColors(work_surface->format->palette, c, 0, 256);
     }
-
-    SDL_SetPaletteColors(work_surface->format->palette, c, 0, 256);
 
     host_init();
     timer_init(&timer);
+    srand(time(NULL));
 
     // NOTE: Main loop
     for(;;) {
@@ -118,17 +129,30 @@ main(int argc, const char *argv[]) {
         timer_update(&timer);
         host_frame(timer.delta);
 
-        u8 *memory_walker = (u8*)work_surface->pixels;
+        // TODO: Clean this up.
+        if(bpp == 1) {
+            u8 *memory_walker = work_surface->pixels;
 
-        // NOTE: Let there be color.
-        for(i32 h = 0; h < height; h++) {
-            for(i32 w = 0; w < width; w++) {
-                u8 color = rand() % 255;
-                *memory_walker++ = color;
+            for(i32 h = 0; h < height; h++) {
+                for(i32 w = 0; w < width; w++)
+                    *memory_walker++ = rand() % 255;
+            }
+        }
+        else if(bpp == 4) {
+            i32 *memory_walker = (i32 *)work_surface->pixels;
+
+            for(i32 h = 0; h < height; h++) {
+                for(i32 w = 0; w < width; w++) {
+                    u8 r = rand() % 256;
+                    u8 g = rand() % 256;
+                    u8 b = rand() % 256;
+
+                    *memory_walker++ = ((r << 16) | (g << 8) | b);
+                }
             }
         }
 
-        draw_rect(work_surface, 30, 30, 200, 300, 13);
+        draw_rect(work_surface, 100, 100, 200, 200, SDL_MapRGB(work_surface->format, 255, 0, 0));
 
         // NOTE: Method of updating 8-bit palette without calling SDL_CreateTextureFromSurface every frame.
         // NOTE: http://sandervanderburg.blogspot.ca/2014/05/rendering-8-bit-palettized-surfaces-in.html
