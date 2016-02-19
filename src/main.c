@@ -1,5 +1,4 @@
 // TODO: SDL timing while windowed is very, very off.
-// TODO: draw_rect and draw_lmp are way too similar.
 // NOTE: Since SDL needs to convert an 8-bit surface to 32-bits to get anything to display anyway, all 32-bit pixel code is redundant.
 
 #include "quakedef.h"
@@ -37,33 +36,6 @@ timer_update(struct Timer *t) {
     t->oldtime = t->time_passed;
 }
 
-void
-draw_rect(SDL_Surface *s, i32 x, i32 y, i32 rect_width, i32 rect_height, u32 color) {
-    u8 bpp = s->format->BytesPerPixel;
-    u8 *buffer = s->pixels;
-
-    // NOTE: Bounds checking
-    if((x + rect_width) > s->w) rect_width = s->w - x;
-    if((y + rect_height) > s->h) rect_height = s->h - y;
-
-    // NOTE: First pixel position.
-    buffer += (s->w * bpp * y) + (x * bpp);
-
-    // TODO: Clean this up.
-    u8 *buffer_walker = buffer;
-
-    for(i32 y = 0; y < rect_height; y++) {
-        for(i32 x = 0; x < rect_width; x++) {
-            *buffer_walker = color;
-            buffer_walker++;
-        }
-
-        buffer += s->w * bpp;
-        buffer_walker = buffer;
-    }
-}
-
-// NOTE: Read .lmp files found within Quake's .PAKs.  Returns 0 on error.
 size_t
 read_lmp(struct LmpData *lmp, const char *file_path) {
     FILE *file = fopen(file_path, "rb");
@@ -92,21 +64,62 @@ escape:
     return bytes_read;
 }
 
+size_t
+load_palette(SDL_Surface *s, const char *palette_path) {
+    struct LmpData palette = {0};
+    size_t bytes_read = read_lmp(&palette, "data/palette.lmp");
+
+    if(!bytes_read) goto escape;
+
+    SDL_Color c[255];
+    u8 *p_data = palette.data;
+
+    for(u8 i = 0; i < 255; i++) {
+        c[i].r = *p_data++;
+        c[i].g = *p_data++;
+        c[i].b = *p_data++;
+    }
+
+    if(SDL_SetPaletteColors(s->format->palette, c, 0, 256) < 0) goto escape;
+
+escape:
+    free(palette.data);
+    return bytes_read;
+}
+
+#define draw_lmp(surface, x, y, lmp_struct) draw_raw(surface, x, y, 0, 0, 0, lmp_struct)
+#define draw_rect(surface, x, y, w, h, color) draw_raw(surface, x, y, w, h, color, NULL)
+
 void
-draw_lmp(SDL_Surface *s, i32 x, i32 y, struct LmpData *lmp) {
+draw_raw(SDL_Surface *s, i32 x, i32 y, i32 rect_width, i32 rect_height, u32 color, struct LmpData *lmp) {
     u8 bpp = s->format->BytesPerPixel;
     u8 *dest = s->pixels;
-    u8 *source = lmp->data;
+    u8 *source = lmp ? lmp->data : NULL;
 
+    // NOTE: Bounds checking
+    if(rect_height && rect_width) {
+        if((x + rect_width) > s->w) rect_width = s->w - x;
+        if((y + rect_height) > s->h) rect_height = s->h - y;
+    }
+    else {
+        rect_height = lmp->height;
+        rect_width = lmp->width;
+    }
+
+    // NOTE: First pixel position.
     dest += (s->w * bpp * y) + (x * bpp);
 
     u8 *buffer_walker = dest;
 
-    for(i32 y = 0; y < lmp->height; y++) {
-        for(i32 x = 0; x < lmp->width; x++) {
-            *buffer_walker = *source;
+    for(i32 y = 0; y < rect_height; y++) {
+        for(i32 x = 0; x < rect_width; x++) {
+            if(color) *buffer_walker = color;
+            if(source) {
+                *buffer_walker = *source;
+                source++;
+            }
+
             buffer_walker++;
-            source++;
         }
 
         dest += s->w * bpp;
@@ -128,11 +141,11 @@ main(int argc, const char *argv[]) {
     i32 pitch;
     struct Timer timer;
 
+    i32 internal_width = 320;
+    i32 internal_height = 240;
     i32 output_width = q_atoi(com_check_parm("-width", argc, argv));
     i32 output_height = q_atoi(com_check_parm("-height", argc, argv));
 
-    i32 internal_width = 320;
-    i32 internal_height = 240;
     if(!output_width) output_width = 640;
     if(!output_height) output_height = 480;
 
@@ -145,26 +158,11 @@ main(int argc, const char *argv[]) {
     output_surface = SDL_CreateRGBSurface(0, output_width, output_height, 32, 0, 0, 0, 0);
     output_texture = SDL_CreateTexture(renderer, output_format, SDL_TEXTUREACCESS_STREAMING, output_width, output_height);
 
-    // NOTE: Create and set the palette
-    struct LmpData palette = {0};
-    read_lmp(&palette, "data/palette.lmp");
-
-    u8 *p_data = palette.data;
-
-    SDL_Color c[255];
-
-    for(u8 i = 0; i < 255; i++) {
-        c[i].r = *p_data++;
-        c[i].g = *p_data++;
-        c[i].b = *p_data++;
-    }
-
-    if(SDL_SetPaletteColors(work_surface->format->palette, c, 0, 256) < 0) goto error;
-    free(palette.data);
-
     struct LmpData disc_data = {0};
     struct LmpData pause_data = {0};
 
+    // TODO: Error checking.
+    load_palette(work_surface, "data/palette.lmp");
     read_lmp(&disc_data, "data/DISC.lmp");
     read_lmp(&pause_data, "data/pause.lmp");
 
@@ -187,15 +185,7 @@ main(int argc, const char *argv[]) {
         timer_update(&timer);
         host_frame(timer.delta);
 
-        // TODO: Clean this up.
-        // u8 *memory_walker = work_surface->pixels;
-        //
-        // for(i32 h = 0; h < height; h++) {
-        //     for(i32 w = 0; w < width; w++)
-        //         *memory_walker++ = rand() % 255;
-        // }
-
-        // draw_rect(work_surface, 0, 0, work_surface->w, work_surface->h, SDL_MapRGB(work_surface->format, 100, 100, 0));
+        draw_rect(work_surface, 0, 0, work_surface->w, work_surface->h, SDL_MapRGB(work_surface->format, 100, 100, 0));
         draw_lmp(work_surface, 20, 20, &pause_data);
         draw_lmp(work_surface, 20, 60, &disc_data);
 
