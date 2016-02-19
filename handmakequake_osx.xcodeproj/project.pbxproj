@@ -11,6 +11,7 @@
 		E03B59801C5972D500EE442D /* sdl_helper.c in Sources */ = {isa = PBXBuildFile; fileRef = E03B597E1C5972D500EE442D /* sdl_helper.c */; };
 		E09DFBD71C4941CA0010D72F /* main.c in Sources */ = {isa = PBXBuildFile; fileRef = E09DFBD61C4941CA0010D72F /* main.c */; };
 		E0B7CD391C494381004983EE /* common.c in Sources */ = {isa = PBXBuildFile; fileRef = E0F5A8361C48200E0000FA62 /* common.c */; };
+		E0C231F11C765C8900CD3039 /* host.c in Sources */ = {isa = PBXBuildFile; fileRef = E0C231EF1C765C8900CD3039 /* host.c */; };
 		E0F5A8381C48200E0000FA62 /* common.c in Sources */ = {isa = PBXBuildFile; fileRef = E0F5A8361C48200E0000FA62 /* common.c */; };
 /* End PBXBuildFile section */
 
@@ -44,6 +45,8 @@
 		E09DFBD41C4941CA0010D72F /* test */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = test; sourceTree = BUILT_PRODUCTS_DIR; };
 		E09DFBD61C4941CA0010D72F /* main.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = main.c; sourceTree = "<group>"; };
 		E0B7CD381C494359004983EE /* greatest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = greatest.h; sourceTree = "<group>"; };
+		E0C231EF1C765C8900CD3039 /* host.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = host.c; sourceTree = "<group>"; };
+		E0C231F01C765C8900CD3039 /* host.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = host.h; sourceTree = "<group>"; };
 		E0F5A8361C48200E0000FA62 /* common.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = common.c; sourceTree = "<group>"; };
 		E0F5A8371C48200E0000FA62 /* common.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = common.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -87,6 +90,8 @@
 		E0365A571C387D67005EAD9C /* src */ = {
 			isa = PBXGroup;
 			children = (
+				E0C231EF1C765C8900CD3039 /* host.c */,
+				E0C231F01C765C8900CD3039 /* host.h */,
 				E03B597E1C5972D500EE442D /* sdl_helper.c */,
 				E03B597F1C5972D500EE442D /* sdl_helper.h */,
 				E0365A581C387D67005EAD9C /* main.c */,
@@ -184,6 +189,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				E0F5A8381C48200E0000FA62 /* common.c in Sources */,
+				E0C231F11C765C8900CD3039 /* host.c in Sources */,
 				E0365A591C387D67005EAD9C /* main.c in Sources */,
 				E03B59801C5972D500EE442D /* sdl_helper.c in Sources */,
 			);
@@ -297,6 +303,8 @@
 					"-Wextra",
 					"-Werror",
 					"-Wno-unused-parameter",
+					"-Wno-missing-braces",
+					"-Wno-missing-field-initializers",
 				);
 			};
 			name = Debug;
@@ -320,6 +328,8 @@
 					"-Wextra",
 					"-Werror",
 					"-Wno-unused-parameter",
+					"-Wno-missing-braces",
+					"-Wno-missing-field-initializers",
 				);
 			};
 			name = Release;
