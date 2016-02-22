@@ -1,4 +1,5 @@
 // TODO: SDL timing while windowed is very, very off.
+// TODO: Proper error checking everywhere.
 // NOTE: Since SDL needs to convert an 8-bit surface to 32-bits to get anything to display anyway, all 32-bit pixel code is redundant.
 
 #include "sys.h"
@@ -130,8 +131,13 @@ sys_sendkeyevents() {
     SDL_Event event;
     sdl_pump_events();
 
+    const u8 *keys = SDL_GetKeyboardState(NULL);
+
+    if(keys[SDL_SCANCODE_Z]) vid_setmode("Handmade Que?", 640, 480);
+    if(keys[SDL_SCANCODE_X]) vid_setmode("Handmade Que?", 800, 600);
+    if(keys[SDL_SCANCODE_C]) vid_setmode("Handmade Que?", 1024, 768);
+
     if(sdl_event_exists(&event, SDL_QUIT)) return false;
-    if(sdl_event_exists(&event, SDL_KEYUP)) return false; //sdl_toggle_fullscreen(window);
 
     sdl_flush_events();
     return true;

@@ -19,7 +19,10 @@ host_filter_time(double time) {
 
 bool
 host_init() {
-    return vid_init();
+    SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_TIMER);
+    vid_init();
+
+    return true;
 }
 
 bool
@@ -39,4 +42,5 @@ host_frame(double timestep) {
 void
 host_shutdown() {
     vid_shutdown();
+    SDL_Quit();
 }

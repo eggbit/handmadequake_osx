@@ -130,9 +130,12 @@ draw_raw(SDL_Surface *s, i32 x, i32 y, i32 width, i32 height, u32 color, struct 
 
 bool
 vid_setmode(const char *title, i32 width, i32 height) {
-    if(SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_TIMER) < 0) return 0;
+    if(window) vid_shutdown();
 
-    window = SDL_CreateWindow(title, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, width, height, 0);
+    output_width = width;
+    output_height = height;
+
+    window = SDL_CreateWindow(title, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, output_width, output_height, 0);
     if(!window) return 0;
 
     renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
@@ -181,6 +184,7 @@ vid_update(void) {
 
 bool
 vid_init(void) {
+    // TODO: Error checking.
     return vid_setmode("Handmade Quake OSX", 640, 480);
 }
 
@@ -193,7 +197,6 @@ vid_shutdown(void) {
     SDL_DestroyTexture(output_texture);
     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);
-    SDL_Quit();
 }
 
 i32
