@@ -30,12 +30,12 @@ host_frame(double timestep) {
     if(!host_filter_time(timestep)) return true;
 
     if(!sys_sendkeyevents()) return false;
-    vid_update();
-
-    static u8 frame = 0;
-    if(frame >= 72) frame = 0;
-
-    printf("Frame: %d\n", ++frame);
+    if(!vid_update()) return false;
+    //
+    // static u8 frame = 0;
+    // if(frame >= 72) frame = 0;
+    //
+    // printf("Frame: %d\n", ++frame);
     return true;
 }
 
