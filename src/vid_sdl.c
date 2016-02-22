@@ -1,4 +1,19 @@
-#include "sdl_helper.h"
+#include "vid.h"
+
+void
+vid_setmode(i32 width, i32 height) {
+
+}
+
+void
+vid_init(void) {
+
+}
+
+void
+vid_shutdown(void) {
+
+}
 
 // Baseline initialization.
 i32

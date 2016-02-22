@@ -13,11 +13,16 @@ host_filter_time(double time) {
 
 void
 host_init() {
+    // vid_init();
 }
 
 void
 host_frame(double timestep) {
     if(!host_filter_time(timestep)) return;
+
+    // TODO: Functions
+    // sys_sendkeyevents();
+    // vid_update();
 
     // static u8 frame = 0;
     // if(frame >= 72) frame = 0;
@@ -27,4 +32,5 @@ host_frame(double timestep) {
 
 void
 host_shutdown() {
+    // vid_shutdown();
 }

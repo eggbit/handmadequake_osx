@@ -1,9 +1,7 @@
 // TODO: SDL timing while windowed is very, very off.
 // NOTE: Since SDL needs to convert an 8-bit surface to 32-bits to get anything to display anyway, all 32-bit pixel code is redundant.
 
-#include "quakedef.h"
-#include "host.h"
-#include <time.h>
+#include "sys.h"
 
 struct Timer {
     double seconds_per_tick;
@@ -91,19 +89,19 @@ escape:
 #define draw_rect(surface, x, y, w, h, color) draw_raw(surface, x, y, w, h, color, NULL)
 
 void
-draw_raw(SDL_Surface *s, i32 x, i32 y, i32 rect_width, i32 rect_height, u32 color, struct LmpData *lmp) {
+draw_raw(SDL_Surface *s, i32 x, i32 y, i32 width, i32 height, u32 color, struct LmpData *lmp) {
     u8 bpp = s->format->BytesPerPixel;
     u8 *dest = s->pixels;
     u8 *source = lmp ? lmp->data : NULL;
 
     // NOTE: Bounds checking
-    if(rect_height && rect_width) {
-        if((x + rect_width) > s->w) rect_width = s->w - x;
-        if((y + rect_height) > s->h) rect_height = s->h - y;
+    if(height && width) {
+        if((x + width) > s->w) width = s->w - x;
+        if((y + height) > s->h) height = s->h - y;
     }
     else {
-        rect_height = lmp->height;
-        rect_width = lmp->width;
+        height = lmp->height;
+        width = lmp->width;
     }
 
     // NOTE: First pixel position.
@@ -111,8 +109,8 @@ draw_raw(SDL_Surface *s, i32 x, i32 y, i32 rect_width, i32 rect_height, u32 colo
 
     u8 *buffer_walker = dest;
 
-    for(i32 y = 0; y < rect_height; y++) {
-        for(i32 x = 0; x < rect_width; x++) {
+    for(i32 y = 0; y < height; y++) {
+        for(i32 x = 0; x < width; x++) {
             if(color) *buffer_walker = color;
             if(source) {
                 *buffer_walker = *source;
@@ -129,6 +127,8 @@ draw_raw(SDL_Surface *s, i32 x, i32 y, i32 rect_width, i32 rect_height, u32 colo
 
 int
 main(int argc, const char *argv[]) {
+    // IDEA: Move all these variables to a struct?
+    // TODO: Move all functionality to vid_setmode function.
     void *output_buffer = NULL;         // NOTE: DO NOT TOUCH.  Will be passed to output_texture when it unlocks.
     SDL_Window *window = NULL;
     SDL_Renderer *renderer = NULL;
@@ -137,9 +137,7 @@ main(int argc, const char *argv[]) {
     SDL_Surface *output_surface = NULL; // NOTE: Will scale up tmp_surface to the final resolution.
     SDL_Texture *output_texture = NULL; // NOTE: Holds the final pixel data that'll be displayed.
     u32 output_format = SDL_PIXELFORMAT_RGB888;
-
     i32 pitch;
-    struct Timer timer;
 
     i32 internal_width = 320;
     i32 internal_height = 240;
@@ -167,12 +165,13 @@ main(int argc, const char *argv[]) {
     read_lmp(&pause_data, "data/pause.lmp");
 
     host_init();
+
+    struct Timer timer;
     timer_init(&timer);
-    srand((u32)time(NULL));
 
     // NOTE: Main loop
     for(;;) {
-        // NOTE: Event processing
+        // NOTE: Event processing; move to vid_sdl.c
         SDL_Event event;
         sdl_pump_events();
 
@@ -185,6 +184,7 @@ main(int argc, const char *argv[]) {
         timer_update(&timer);
         host_frame(timer.delta);
 
+        // TODO: Move drawing to host_frame
         draw_rect(work_surface, 0, 0, work_surface->w, work_surface->h, SDL_MapRGB(work_surface->format, 100, 100, 0));
         draw_lmp(work_surface, 20, 20, &pause_data);
         draw_lmp(work_surface, 20, 60, &disc_data);
@@ -216,6 +216,8 @@ exit:
     free(disc_data.data);
     free(pause_data.data);
     host_shutdown();
+
+    // TODO: Move to vid_shutdown.
     SDL_FreeSurface(work_surface);
     SDL_FreeSurface(output_surface);
     SDL_DestroyTexture(output_texture);
