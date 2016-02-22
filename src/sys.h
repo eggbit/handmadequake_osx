@@ -3,4 +3,6 @@
 
 #include "quakedef.h"
 
+bool sys_sendkeyevents(void);
+
 #endif // sys_h
