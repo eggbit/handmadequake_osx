@@ -16,7 +16,6 @@ static SDL_Surface *work_surface = NULL;   // NOTE: Holds pixel data we'll direc
 static SDL_Surface *tmp_surface = NULL;    // NOTE: Surface to convert 8-bit work_surface to 32-bit.
 static SDL_Surface *output_surface = NULL; // NOTE: Will scale up tmp_surface to the final resolution.
 static SDL_Texture *output_texture = NULL; // NOTE: Holds the final pixel data that'll be displayed.
-static u32 output_format = SDL_PIXELFORMAT_RGB888;
 
 struct LmpData disc_data = {0};
 struct LmpData pause_data = {0};
@@ -112,18 +111,13 @@ draw_raw(SDL_Surface *s, i32 x, i32 y, i32 width, i32 height, u32 color, struct 
 bool
 vid_setmode(const char *title, i32 width, i32 height) {
     if(window) vid_shutdown();
+    if(SDL_CreateWindowAndRenderer(width, height, 0, &window, &renderer) < 0) return false;
 
-    window = SDL_CreateWindow(title, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, width, height, 0);
-    if(!window) return false;
-
-    renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
-    if(!renderer) return false;
-
-    // NOTE: Set up work_surface, output_surface, output_texture.
+    // NOTE: Create surfaces and output texture.
     work_surface = SDL_CreateRGBSurface(0, 320, 240, 8, 0, 0, 0, 0);
     tmp_surface = SDL_CreateRGBSurface(0, 320, 240, 32, 0, 0, 0, 0);
     output_surface = SDL_CreateRGBSurface(0, width, height, 32, 0, 0, 0, 0);
-    output_texture = SDL_CreateTexture(renderer, output_format, SDL_TEXTUREACCESS_STREAMING, width, height);
+    output_texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGB888, SDL_TEXTUREACCESS_STREAMING, width, height);
 
     // TODO: Error checking.
     load_palette(work_surface, "data/palette.lmp");
@@ -155,7 +149,7 @@ vid_update(void) {
     SDL_LockTexture(output_texture, NULL, &output_buffer, &pitch);
 
     SDL_ConvertPixels(output_surface->w, output_surface->h, output_surface->format->format,
-        output_surface->pixels, output_surface->pitch, output_format, output_buffer, pitch);
+        output_surface->pixels, output_surface->pitch, SDL_PIXELFORMAT_RGB888, output_buffer, pitch);
 
     SDL_UnlockTexture(output_texture);
 

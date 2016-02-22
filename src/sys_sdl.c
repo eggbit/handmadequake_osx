@@ -45,7 +45,7 @@ sys_sendkeyevents() {
 
     if(sdl_event_exists(&event, SDL_QUIT)) return false;
 
-    sdl_flush_events();
+    SDL_FlushEvents(SDL_FIRSTEVENT, SDL_LASTEVENT);
     return true;
 }
 
