@@ -19,6 +19,8 @@ typedef uint32_t u32;
 typedef uint64_t u64;
 
 #include "common.h"
-#include "sdl_helper.h"
+#include "host.h"
+#include "vid.h"
+#include "sys.h"
 
 #endif /* quakedef_h */
