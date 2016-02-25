@@ -10,6 +10,17 @@ struct LmpData {
     void *data;
 };
 
+enum modestate_t { VID_WINDOWED, VID_FULLSCREEN };
+
+struct vmode_t {
+    enum modestate_t type;
+    i32 width;
+    i32 height;
+};
+
+struct vmode_t mode_list[30];
+i32 mode_count = 0;
+
 static SDL_Window *window = NULL;
 static SDL_Renderer *renderer = NULL;
 static SDL_Surface *work_surface = NULL;   // NOTE: Holds pixel data we'll directly modify.
@@ -108,10 +119,68 @@ draw_raw(SDL_Surface *s, i32 x, i32 y, i32 width, i32 height, u32 color, struct 
     }
 }
 
+void
+vid_init_windowed_mode(void) {
+    // TODO: Clean this up.
+    mode_list[mode_count].type = VID_WINDOWED;
+    mode_list[mode_count].width = 320;
+    mode_list[mode_count].height = 240;
+    mode_count++;
+
+    mode_list[mode_count].type = VID_WINDOWED;
+    mode_list[mode_count].width = 640;
+    mode_list[mode_count].height = 480;
+    mode_count++;
+
+    mode_list[mode_count].type = VID_WINDOWED;
+    mode_list[mode_count].width = 800;
+    mode_list[mode_count].height = 600;
+    mode_count++;
+
+    mode_list[mode_count].type = VID_WINDOWED;
+    mode_list[mode_count].width = 1024;
+    mode_list[mode_count].height = 768;
+    mode_count++;
+}
+
+void
+vid_init_fullscreen_mode(void) {
+    SDL_DisplayMode d;
+    i32 num_modes = SDL_GetNumDisplayModes(1);
+
+    // TODO: Multidisplay support.
+    for(i32 i = 0; i < num_modes; i++) {
+        SDL_GetDisplayMode(1, i, &d);
+
+        if(d.refresh_rate == 60) {
+            // printf("width: %d - height: %d - vsync: %d\n", d.w, d.h, d.refresh_rate);
+            mode_list[mode_count].type = VID_FULLSCREEN;
+            mode_list[mode_count].width = d.w;
+            mode_list[mode_count].height = d.h;
+            mode_count++;
+        }
+    }
+}
+
 bool
-vid_setmode(const char *title, i32 width, i32 height) {
+vid_init(void) {
+    vid_init_windowed_mode();
+    vid_init_fullscreen_mode();
+    return vid_setmode("Handmade Quake OSX", 1);
+}
+
+bool
+vid_setmode(const char *title, i32 mode) {
     if(window) vid_shutdown();
-    if(SDL_CreateWindowAndRenderer(width, height, 0, &window, &renderer) < 0) return false;
+
+    i32 width = mode_list[mode].width;
+    i32 height = mode_list[mode].height;
+    i32 fullscreen_flag = (mode_list[mode].type == VID_WINDOWED) ? 0 : SDL_WINDOW_FULLSCREEN;
+
+    if(SDL_CreateWindowAndRenderer(width, height, fullscreen_flag, &window, &renderer) < 0) return false;
+
+    // NOTE: Maintain 4:3 aspect ratio while fullscreen
+    if(fullscreen_flag) SDL_RenderSetLogicalSize(renderer, 320, 240);
 
     // NOTE: Create surfaces and output texture.
     work_surface = SDL_CreateRGBSurface(0, 320, 240, 8, 0, 0, 0, 0);
@@ -159,11 +228,6 @@ vid_update(void) {
     SDL_RenderClear(renderer);
 
     return true;
-}
-
-bool
-vid_init(void) {
-    return vid_setmode("Handmade Quake OSX", 640, 480);
 }
 
 void

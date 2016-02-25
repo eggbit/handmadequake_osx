@@ -37,9 +37,10 @@ sys_sendkeyevents() {
     if(sdl_event_exists(&event, SDL_KEYDOWN)) {
         SDL_Keycode key = event.key.keysym.sym;
 
-        if(key == SDLK_z) vid_setmode("Handmade Que?", 640, 480);
-        if(key == SDLK_x) vid_setmode("Handmade Que?", 800, 600);
-        if(key == SDLK_c) vid_setmode("Handmade Que?", 1024, 768);
+        if(key == SDLK_z) vid_setmode("Handmade Que?", 1);
+        if(key == SDLK_x) vid_setmode("Handmade Que?", 2);
+        if(key == SDLK_c) vid_setmode("Handmade Que?", 3);
+        if(key == SDLK_p) vid_setmode("Handmade Fullscreen", 6);
         if(key == SDLK_t) vid_toggle_fullscreen();
     }
 
@@ -63,7 +64,7 @@ main(int argc, const char *argv[]) {
 
 exit:;
     const char *error = SDL_GetError();
-    if(error) printf("ERROR: %s\n", error);
+    if(error != NULL && error[0] != '\0') printf("ERROR: %s\n", error);
 
     host_shutdown();
     return 0;

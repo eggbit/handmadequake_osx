@@ -3,7 +3,7 @@
 
 #include "quakedef.h"
 
-bool vid_setmode(const char *title, i32 width, i32 height);
+bool vid_setmode(const char *title, i32 mode);
 bool vid_init(void);
 bool vid_update(void);
 void vid_shutdown(void);
