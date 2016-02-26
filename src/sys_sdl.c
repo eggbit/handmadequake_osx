@@ -4,7 +4,7 @@
 
 #include "sys.h"
 
-struct Timer {
+struct timer_t {
     double seconds_per_tick;
     double oldtime;
     double delta;
@@ -13,13 +13,13 @@ struct Timer {
 };
 
 void
-sys_timerinit(struct Timer *t) {
+sys_timerinit(struct timer_t *t) {
     t->seconds_per_tick = 1.0 / (double)SDL_GetPerformanceFrequency();
     t->time_count = SDL_GetPerformanceCounter();
 }
 
 void
-sys_timerupdate(struct Timer *t) {
+sys_timerupdate(struct timer_t *t) {
     u64 counter = SDL_GetPerformanceCounter();
     u64 interval = counter - t->time_count;
 
@@ -54,7 +54,7 @@ int
 main(int argc, const char *argv[]) {
     if(!host_init()) goto exit;
 
-    struct Timer timer;
+    struct timer_t timer;
     sys_timerinit(&timer);
 
     for(;;) {

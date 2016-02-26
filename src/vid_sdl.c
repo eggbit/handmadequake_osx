@@ -4,7 +4,7 @@
 #define draw_lmp(surface, x, y, lmp_struct) draw_raw(surface, x, y, 0, 0, 0, lmp_struct)
 #define draw_rect(surface, x, y, w, h, color) draw_raw(surface, x, y, w, h, color, NULL)
 
-struct LmpData {
+struct lmpdata_t {
     i32 width;
     i32 height;
     void *data;
@@ -28,11 +28,11 @@ static SDL_Surface *tmp_surface = NULL;    // NOTE: Surface to convert 8-bit wor
 static SDL_Surface *output_surface = NULL; // NOTE: Will scale up tmp_surface to the final resolution.
 static SDL_Texture *output_texture = NULL; // NOTE: Holds the final pixel data that'll be displayed.
 
-struct LmpData disc_data = {0};
-struct LmpData pause_data = {0};
+struct lmpdata_t disc_data = {0};
+struct lmpdata_t pause_data = {0};
 
 size_t
-read_lmp(struct LmpData *lmp, const char *file_path) {
+read_lmp(struct lmpdata_t *lmp, const char *file_path) {
     FILE *file = fopen(file_path, "rb");
     size_t bytes_read = 0;
 
@@ -61,7 +61,7 @@ escape:
 
 size_t
 load_palette(SDL_Surface *s, const char *palette_path) {
-    struct LmpData palette = {0};
+    struct lmpdata_t palette = {0};
     size_t bytes_read = read_lmp(&palette, "data/palette.lmp");
 
     if(!bytes_read) goto escape;
@@ -83,7 +83,7 @@ escape:
 }
 
 void
-draw_raw(SDL_Surface *s, i32 x, i32 y, i32 width, i32 height, u32 color, struct LmpData *lmp) {
+draw_raw(SDL_Surface *s, i32 x, i32 y, i32 width, i32 height, u32 color, struct lmpdata_t *lmp) {
     u8 bpp = s->format->BytesPerPixel;
     u8 *dest = s->pixels;
     u8 *source = lmp ? lmp->data : NULL;
