@@ -4,6 +4,8 @@
 #define draw_lmp(surface, x, y, lmp_struct) draw_raw(surface, x, y, 0, 0, 0, lmp_struct)
 #define draw_rect(surface, x, y, w, h, color) draw_raw(surface, x, y, w, h, color, NULL)
 
+#define MAX_MODES 30
+
 struct lmpdata_t {
     i32 width;
     i32 height;
@@ -16,8 +18,13 @@ struct vmode_t {
     i32 height;
 };
 
-struct vmode_t mode_list[30];
-i32 mode_count = 0;
+// NOTE: Fullscreen modes will be added to this array via vid_init_fullscreen_mode function.
+static struct vmode_t mode_list[MAX_MODES] = {
+    { false, 320, 240 },
+    { false, 640, 480 },
+    { false, 800, 600 },
+    { false, 1024, 768 }
+};
 
 static SDL_Window *window = NULL;
 static SDL_Renderer *renderer = NULL;
@@ -118,52 +125,36 @@ draw_raw(SDL_Surface *s, i32 x, i32 y, i32 width, i32 height, u32 color, struct 
 }
 
 void
-vid_init_windowed_mode(void) {
-    // TODO: Clean this up.
-    mode_list[mode_count].fullscreen = false;
-    mode_list[mode_count].width = 320;
-    mode_list[mode_count].height = 240;
-    mode_count++;
-
-    mode_list[mode_count].fullscreen = false;
-    mode_list[mode_count].width = 640;
-    mode_list[mode_count].height = 480;
-    mode_count++;
-
-    mode_list[mode_count].fullscreen = false;
-    mode_list[mode_count].width = 800;
-    mode_list[mode_count].height = 600;
-    mode_count++;
-
-    mode_list[mode_count].fullscreen = false;
-    mode_list[mode_count].width = 1024;
-    mode_list[mode_count].height = 768;
-    mode_count++;
-}
-
-void
 vid_init_fullscreen_mode(void) {
-    SDL_DisplayMode d;
-    i32 num_modes = SDL_GetNumDisplayModes(1);
+    for(u32 i = 0; i < MAX_MODES; i++) {
+        if(!mode_list[i].width) { // NOTE: Start adding fullscreen modes when we hit first empty element in mode_list.
+            SDL_DisplayMode d;
+            i32 num_modes = SDL_GetNumDisplayModes(0);
 
-    // TODO: Multidisplay support.
-    for(i32 i = 0; i < num_modes; i++) {
-        SDL_GetDisplayMode(1, i, &d);
+            // TODO: Multidisplay support.
+            for(i32 x = i; x < num_modes; x++) {
+                SDL_GetDisplayMode(0, x, &d);
 
-        if(d.refresh_rate == 60) {
-            // printf("width: %d - height: %d - vsync: %d\n", d.w, d.h, d.refresh_rate);
-            mode_list[mode_count].fullscreen = true;
-            mode_list[mode_count].width = d.w;
-            mode_list[mode_count].height = d.h;
-            mode_count++;
+                if(d.refresh_rate == 60) {
+                    // printf("width: %d - height: %d - vsync: %d\n", d.w, d.h, d.refresh_rate);
+                    mode_list[x].fullscreen = true;
+                    mode_list[x].width = d.w;
+                    mode_list[x].height = d.h;
+                }
+            }
+            break;
         }
     }
 }
 
 bool
 vid_init(void) {
-    vid_init_windowed_mode();
     vid_init_fullscreen_mode();
+
+    // NOTE: Print out all modes
+    for(u32 i = 0; i < MAX_MODES; i++)
+        printf("width: %d - height: %d - fullscreen: %s\n", mode_list[i].width, mode_list[i].height, mode_list[i].fullscreen ? "true" : "false");
+
     return vid_setmode("Handmade Quake OSX", 1);
 }
 
