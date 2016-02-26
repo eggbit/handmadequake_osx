@@ -10,10 +10,8 @@ struct lmpdata_t {
     void *data;
 };
 
-enum modestate_t { VID_WINDOWED, VID_FULLSCREEN };
-
 struct vmode_t {
-    enum modestate_t type;
+    bool fullscreen;
     i32 width;
     i32 height;
 };
@@ -122,22 +120,22 @@ draw_raw(SDL_Surface *s, i32 x, i32 y, i32 width, i32 height, u32 color, struct 
 void
 vid_init_windowed_mode(void) {
     // TODO: Clean this up.
-    mode_list[mode_count].type = VID_WINDOWED;
+    mode_list[mode_count].fullscreen = false;
     mode_list[mode_count].width = 320;
     mode_list[mode_count].height = 240;
     mode_count++;
 
-    mode_list[mode_count].type = VID_WINDOWED;
+    mode_list[mode_count].fullscreen = false;
     mode_list[mode_count].width = 640;
     mode_list[mode_count].height = 480;
     mode_count++;
 
-    mode_list[mode_count].type = VID_WINDOWED;
+    mode_list[mode_count].fullscreen = false;
     mode_list[mode_count].width = 800;
     mode_list[mode_count].height = 600;
     mode_count++;
 
-    mode_list[mode_count].type = VID_WINDOWED;
+    mode_list[mode_count].fullscreen = false;
     mode_list[mode_count].width = 1024;
     mode_list[mode_count].height = 768;
     mode_count++;
@@ -154,7 +152,7 @@ vid_init_fullscreen_mode(void) {
 
         if(d.refresh_rate == 60) {
             // printf("width: %d - height: %d - vsync: %d\n", d.w, d.h, d.refresh_rate);
-            mode_list[mode_count].type = VID_FULLSCREEN;
+            mode_list[mode_count].fullscreen = true;
             mode_list[mode_count].width = d.w;
             mode_list[mode_count].height = d.h;
             mode_count++;
@@ -175,7 +173,7 @@ vid_setmode(const char *title, i32 mode) {
 
     i32 width = mode_list[mode].width;
     i32 height = mode_list[mode].height;
-    i32 fullscreen_flag = (mode_list[mode].type == VID_WINDOWED) ? 0 : SDL_WINDOW_FULLSCREEN;
+    i32 fullscreen_flag = (mode_list[mode].fullscreen) ? SDL_WINDOW_FULLSCREEN : 0;
 
     if(SDL_CreateWindowAndRenderer(width, height, fullscreen_flag, &window, &renderer) < 0) return false;
 
