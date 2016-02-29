@@ -200,13 +200,10 @@ vid_update(void) {
     sl_output_surface = SDL_ConvertSurfaceFormat(sl_work_surface, SDL_PIXELFORMAT_RGB888, 0);
     if(!sl_output_surface) return false;
 
-    // NOTE: Lock the texture, convert sl_output_surface to a more native format, then unlock the texture.
+    // NOTE: Lock the texture, copy sl_output_surface pixels to the locked buffer, then unlock the texture.
     // NOTE: After unlocking, sl_output_texture will hold the final pixel data.
     SDL_LockTexture(sl_output_texture, NULL, &output_buffer, &pitch);
-
-    SDL_ConvertPixels(sl_output_surface->w, sl_output_surface->h, sl_output_surface->format->format,
-        sl_output_surface->pixels, sl_output_surface->pitch, SDL_PIXELFORMAT_RGB888, output_buffer, pitch);
-
+    memcpy(output_buffer, sl_output_surface->pixels, sl_output_surface->pitch * sl_output_surface->h);
     SDL_UnlockTexture(sl_output_texture);
 
     // NOTE: Output the texture to the screen.  SDL_RenderCopy will scale the texture up.
