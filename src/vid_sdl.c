@@ -185,13 +185,18 @@ vid_setmode(const char *title, i32 mode) {
 }
 
 bool
-vid_update(void) {
-    void *output_buffer = NULL;
-    i32 pitch;
-
+vid_draw(void) {
     draw_rect(0, 0, sl_work_surface->w, sl_work_surface->h, SDL_MapRGB(sl_work_surface->format, 100, 100, 0));
     draw_lmp(20, 20, &sl_pause_data);
     draw_lmp(20, 60, &sl_disc_data);
+
+    return true;
+}
+
+bool
+vid_update(void) {
+    void *output_buffer = NULL;
+    i32 pitch;
 
     // NOTE: Method of updating 8-bit palette without calling SDL_CreateTextureFromSurface every frame.
     // NOTE: http://sandervanderburg.blogspot.ca/2014/05/rendering-8-bit-palettized-surfaces-in.html

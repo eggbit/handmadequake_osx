@@ -34,7 +34,7 @@ bool
 host_frame(double timestep) {
     if(host_filter_time(timestep)) {
         // printf("Frame: %d\n", frame_count(72));
-        if(!sys_sendkeyevents() || !vid_update()) return false;
+        if(!sys_sendkeyevents() || !vid_draw() || !vid_update()) return false;
     }
 
     return true;
