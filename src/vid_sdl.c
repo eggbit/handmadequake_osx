@@ -32,8 +32,7 @@ static struct lmpdata_t sl_pause_data = { 0 };
 static SDL_Window *sl_window = NULL;
 static SDL_Renderer *sl_renderer = NULL;
 static SDL_Surface *sl_work_surface = NULL;   // NOTE: Holds pixel data we'll directly modify.
-static SDL_Surface *sl_tmp_surface = NULL;    // NOTE: Surface to convert 8-bit sl_work_surface to 32-bit.
-static SDL_Surface *sl_output_surface = NULL; // NOTE: Will scale up sl_tmp_surface to the final resolution.
+static SDL_Surface *sl_output_surface = NULL; // NOTE: Will hold 32-bit conversion of sl_work_surface.
 static SDL_Texture *sl_output_texture = NULL; // NOTE: Holds the final pixel data that'll be displayed.
 
 size_t
@@ -175,9 +174,7 @@ vid_setmode(const char *title, i32 mode) {
 
     // NOTE: Create surfaces and output texture.
     sl_work_surface = SDL_CreateRGBSurface(0, 320, 240, 8, 0, 0, 0, 0);
-    sl_tmp_surface = SDL_CreateRGBSurface(0, 320, 240, 32, 0, 0, 0, 0);
-    sl_output_surface = SDL_CreateRGBSurface(0, width, height, 32, 0, 0, 0, 0);
-    sl_output_texture = SDL_CreateTexture(sl_renderer, SDL_PIXELFORMAT_RGB888, SDL_TEXTUREACCESS_STREAMING, width, height);
+    sl_output_texture = SDL_CreateTexture(sl_renderer, SDL_PIXELFORMAT_RGB888, SDL_TEXTUREACCESS_STREAMING, 320, 240);
 
     // TODO: Error checking.
     load_palette("data/palette.lmp");
@@ -199,10 +196,9 @@ vid_update(void) {
     // NOTE: Method of updating 8-bit palette without calling SDL_CreateTextureFromSurface every frame.
     // NOTE: http://sandervanderburg.blogspot.ca/2014/05/rendering-8-bit-palettized-surfaces-in.html
 
-    // NOTE: sl_work_surface -> sl_tmp_surface = 8-bit -> 32-bit.
-    // NOTE: sl_tmp_surface -> sl_output_surface = 320x240 -> output resolution.
-    if(SDL_BlitSurface(sl_work_surface, NULL, sl_tmp_surface, NULL) < 0) return false;
-    if(SDL_BlitScaled(sl_tmp_surface, NULL, sl_output_surface, NULL) < 0) return false;
+    // NOTE: sl_work_surface -> sl_output_surface = 8-bit -> 32-bit.
+    sl_output_surface = SDL_ConvertSurfaceFormat(sl_work_surface, SDL_PIXELFORMAT_RGB888, 0);
+    if(!sl_output_surface) return false;
 
     // NOTE: Lock the texture, convert sl_output_surface to a more native format, then unlock the texture.
     // NOTE: After unlocking, sl_output_texture will hold the final pixel data.
@@ -213,7 +209,7 @@ vid_update(void) {
 
     SDL_UnlockTexture(sl_output_texture);
 
-    // NOTE: Output the texture to the screen.
+    // NOTE: Output the texture to the screen.  SDL_RenderCopy will scale the texture up.
     SDL_RenderCopy(sl_renderer, sl_output_texture, NULL, NULL);
     SDL_RenderPresent(sl_renderer);
     SDL_RenderClear(sl_renderer);
@@ -226,7 +222,6 @@ vid_shutdown(void) {
     free(sl_disc_data.data);
     free(sl_pause_data.data);
     SDL_FreeSurface(sl_work_surface);
-    SDL_FreeSurface(sl_tmp_surface);
     SDL_FreeSurface(sl_output_surface);
     SDL_DestroyTexture(sl_output_texture);
     SDL_DestroyRenderer(sl_renderer);
