@@ -32,8 +32,8 @@ static struct lmpdata_t sl_pause_data = { 0 };
 static SDL_Window *sl_window = NULL;
 static SDL_Renderer *sl_renderer = NULL;
 static SDL_Surface *sl_work_surface = NULL;   // NOTE: Holds pixel data we'll directly modify.
-static SDL_Surface *sl_output_surface = NULL; // NOTE: Will hold 32-bit conversion of sl_work_surface.
 static SDL_Texture *sl_output_texture = NULL; // NOTE: Holds the final pixel data that'll be displayed.
+static SDL_Palette *sl_palette = NULL;
 
 size_t
 read_lmp(struct lmpdata_t *lmp, const char *file_path) {
@@ -70,6 +70,8 @@ load_palette(const char *palette_path) {
 
     if(!bytes_read) goto escape;
 
+    sl_palette = SDL_AllocPalette(256);
+
     SDL_Color c[255];
     u8 *p_data = palette.data;
 
@@ -78,8 +80,8 @@ load_palette(const char *palette_path) {
         c[i].g = *p_data++;
         c[i].b = *p_data++;
     }
-
-    if(SDL_SetPaletteColors(sl_work_surface->format->palette, c, 0, 256) < 0) goto escape;
+    
+    SDL_SetPaletteColors(sl_palette, c, 0, 256);
 
 escape:
     free(palette.data);
@@ -106,13 +108,14 @@ draw_raw(i32 x, i32 y, i32 width, i32 height, u32 color, struct lmpdata_t *lmp) 
     // NOTE: First pixel position.
     dest += (sl_work_surface->w * bpp * y) + (x * bpp);
 
-    u8 *buffer_walker = dest;
+    u32 *buffer_walker = (u32 *)dest;
 
     for(i32 y = 0; y < height; y++) {
         for(i32 x = 0; x < width; x++) {
             if(color) *buffer_walker = color;
             if(source) {
-                *buffer_walker = *source;
+                SDL_Color c = sl_palette->colors[*source];
+                *buffer_walker = (c.r << 16) | (c.g << 8) | c.b;
                 source++;
             }
 
@@ -120,7 +123,7 @@ draw_raw(i32 x, i32 y, i32 width, i32 height, u32 color, struct lmpdata_t *lmp) 
         }
 
         dest += sl_work_surface->w * bpp;
-        buffer_walker = dest;
+        buffer_walker = (u32 *)dest;
     }
 }
 
@@ -173,7 +176,7 @@ vid_setmode(const char *title, i32 mode) {
     if(fullscreen_flag) SDL_RenderSetLogicalSize(sl_renderer, 320, 240);
 
     // NOTE: Create surfaces and output texture.
-    sl_work_surface = SDL_CreateRGBSurface(0, 320, 240, 8, 0, 0, 0, 0);
+    sl_work_surface = SDL_CreateRGBSurface(0, 320, 240, 32, 0, 0, 0, 0);
     sl_output_texture = SDL_CreateTexture(sl_renderer, SDL_PIXELFORMAT_RGB888, SDL_TEXTUREACCESS_STREAMING, 320, 240);
 
     // TODO: Error checking.
@@ -195,26 +198,21 @@ vid_draw(void) {
 
 bool
 vid_update(void) {
-    void *output_buffer = NULL;
-    i32 pitch;
-
     // NOTE: Method of updating 8-bit palette without calling SDL_CreateTextureFromSurface every frame.
     // NOTE: http://sandervanderburg.blogspot.ca/2014/05/rendering-8-bit-palettized-surfaces-in.html
 
-    // NOTE: sl_work_surface -> sl_output_surface = 8-bit -> 32-bit.
-    sl_output_surface = SDL_ConvertSurfaceFormat(sl_work_surface, SDL_PIXELFORMAT_RGB888, 0);
-    if(!sl_output_surface) return false;
+    void *output_buffer = NULL;
+    i32 pitch;
 
-    // NOTE: Lock the texture, copy sl_output_surface pixels to the locked buffer, then unlock the texture.
-    // NOTE: After unlocking, sl_output_texture will hold the final pixel data.
+    // NOTE: Copy sl_work_surface pixels to sl_output_texture's pixel buffer.
     SDL_LockTexture(sl_output_texture, NULL, &output_buffer, &pitch);
-    memcpy(output_buffer, sl_output_surface->pixels, sl_output_surface->pitch * sl_output_surface->h);
+    memcpy(output_buffer, sl_work_surface->pixels, sl_work_surface->pitch * sl_work_surface->h);
     SDL_UnlockTexture(sl_output_texture);
 
-    // NOTE: Output the texture to the screen.  SDL_RenderCopy will scale the texture up.
+    // NOTE: Output the texture to the screen. SDL_RenderCopy will scale the texture up.
+    SDL_RenderClear(sl_renderer);
     SDL_RenderCopy(sl_renderer, sl_output_texture, NULL, NULL);
     SDL_RenderPresent(sl_renderer);
-    SDL_RenderClear(sl_renderer);
 
     return true;
 }
@@ -223,8 +221,8 @@ void
 vid_shutdown(void) {
     free(sl_disc_data.data);
     free(sl_pause_data.data);
+    SDL_FreePalette(sl_palette);
     SDL_FreeSurface(sl_work_surface);
-    SDL_FreeSurface(sl_output_surface);
     SDL_DestroyTexture(sl_output_texture);
     SDL_DestroyRenderer(sl_renderer);
     SDL_DestroyWindow(sl_window);
