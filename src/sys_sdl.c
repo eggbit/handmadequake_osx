@@ -3,6 +3,7 @@
 // NOTE: Since SDL needs to convert an 8-bit surface to 32-bits to get anything to display anyway, all 32-bit pixel code is redundant.
 
 #include "sys.h"
+#include <stdarg.h>
 
 struct timer_t {
     double seconds_per_tick;
@@ -50,22 +51,39 @@ sys_sendkeyevents() {
     return true;
 }
 
+const char*
+sys_va(const char *format, ...) {
+    static char buffer[1024];
+    va_list v;
+
+    va_start(v, format);
+    vsprintf(buffer, format, v);
+    va_end(v);
+
+    return buffer;
+}
+
 int
 main(int argc, const char *argv[]) {
-    if(!host_init()) goto exit;
+    const char *s = sys_va("Hello, 0x%x and %f!", 255, 5.435);
+    puts(s);
 
-    struct timer_t timer;
-    sys_timerinit(&timer);
-
-    for(;;) {
-        sys_timerupdate(&timer);
-        if(!host_frame(timer.delta)) goto exit;
-    }
-
-exit:;
-    const char *error = SDL_GetError();
-    if(error != NULL && error[0] != '\0') printf("ERROR: %s\n", error);
-
-    host_shutdown();
     return 0;
+
+//     if(!host_init()) goto exit;
+//
+//     struct timer_t timer;
+//     sys_timerinit(&timer);
+//
+//     for(;;) {
+//         sys_timerupdate(&timer);
+//         if(!host_frame(timer.delta)) goto exit;
+//     }
+//
+// exit:;
+//     const char *error = SDL_GetError();
+//     if(error != NULL && error[0] != '\0') printf("ERROR: %s\n", error);
+//
+//     host_shutdown();
+//     return 0;
 }

@@ -4,6 +4,7 @@
 #include "quakedef.h"
 
 bool sys_sendkeyevents(void);
+const char *sys_va(const char *format, ...);
 
 // Helper macros
 #define sdl_event_exists(sdl_event, e_type) \
