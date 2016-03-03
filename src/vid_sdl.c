@@ -80,7 +80,7 @@ load_palette(const char *palette_path) {
         c[i].g = *p_data++;
         c[i].b = *p_data++;
     }
-    
+
     SDL_SetPaletteColors(sl_palette, c, 0, 256);
 
 escape:
