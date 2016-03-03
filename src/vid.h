@@ -6,6 +6,7 @@
 bool vid_setmode(const char *title, i32 mode);
 bool vid_init(void);
 bool vid_update(void);
+bool vid_draw(void);
 void vid_shutdown(void);
 void vid_toggle_fullscreen(void);
 

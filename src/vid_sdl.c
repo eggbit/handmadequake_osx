@@ -1,38 +1,42 @@
 #include "vid.h"
 
 // NOTE: Asset drawing helpers
-#define draw_lmp(surface, x, y, lmp_struct) draw_raw(surface, x, y, 0, 0, 0, lmp_struct)
-#define draw_rect(surface, x, y, w, h, color) draw_raw(surface, x, y, w, h, color, NULL)
+#define draw_lmp(x, y, lmp_struct) draw_raw(x, y, 0, 0, 0, lmp_struct)
+#define draw_rect(x, y, w, h, color) draw_raw(x, y, w, h, color, NULL)
 
-struct LmpData {
+#define MAX_MODES 30
+
+struct lmpdata_t {
     i32 width;
     i32 height;
     void *data;
 };
 
-enum modestate_t { VID_WINDOWED, VID_FULLSCREEN };
-
 struct vmode_t {
-    enum modestate_t type;
+    bool fullscreen;
     i32 width;
     i32 height;
 };
 
-struct vmode_t mode_list[30];
-i32 mode_count = 0;
+// NOTE: Fullscreen modes will be added to this array via vid_init_fullscreen_mode function.
+static struct vmode_t sl_mode_list[MAX_MODES] = {
+    { false, 320, 240 },
+    { false, 640, 480 },
+    { false, 800, 600 },
+    { false, 1024, 768 }
+};
 
-static SDL_Window *window = NULL;
-static SDL_Renderer *renderer = NULL;
-static SDL_Surface *work_surface = NULL;   // NOTE: Holds pixel data we'll directly modify.
-static SDL_Surface *tmp_surface = NULL;    // NOTE: Surface to convert 8-bit work_surface to 32-bit.
-static SDL_Surface *output_surface = NULL; // NOTE: Will scale up tmp_surface to the final resolution.
-static SDL_Texture *output_texture = NULL; // NOTE: Holds the final pixel data that'll be displayed.
+static struct lmpdata_t sl_disc_data = { 0 };
+static struct lmpdata_t sl_pause_data = { 0 };
 
-struct LmpData disc_data = {0};
-struct LmpData pause_data = {0};
+static SDL_Window *sl_window = NULL;
+static SDL_Renderer *sl_renderer = NULL;
+static SDL_Surface *sl_work_surface = NULL;   // NOTE: Holds pixel data we'll directly modify.
+static SDL_Texture *sl_output_texture = NULL; // NOTE: Holds the final pixel data that'll be displayed.
+static SDL_Palette *sl_palette = NULL;
 
 size_t
-read_lmp(struct LmpData *lmp, const char *file_path) {
+read_lmp(struct lmpdata_t *lmp, const char *file_path) {
     FILE *file = fopen(file_path, "rb");
     size_t bytes_read = 0;
 
@@ -60,11 +64,13 @@ escape:
 }
 
 size_t
-load_palette(SDL_Surface *s, const char *palette_path) {
-    struct LmpData palette = {0};
+load_palette(const char *palette_path) {
+    struct lmpdata_t palette = {0};
     size_t bytes_read = read_lmp(&palette, "data/palette.lmp");
 
     if(!bytes_read) goto escape;
+
+    sl_palette = SDL_AllocPalette(256);
 
     SDL_Color c[255];
     u8 *p_data = palette.data;
@@ -75,23 +81,24 @@ load_palette(SDL_Surface *s, const char *palette_path) {
         c[i].b = *p_data++;
     }
 
-    if(SDL_SetPaletteColors(s->format->palette, c, 0, 256) < 0) goto escape;
+    SDL_SetPaletteColors(sl_palette, c, 0, 256);
 
 escape:
     free(palette.data);
     return bytes_read;
 }
 
+// NOTE: draw_lmp and draw_rect are based on this function
 void
-draw_raw(SDL_Surface *s, i32 x, i32 y, i32 width, i32 height, u32 color, struct LmpData *lmp) {
-    u8 bpp = s->format->BytesPerPixel;
-    u8 *dest = s->pixels;
+draw_raw(i32 x, i32 y, i32 width, i32 height, u32 color, struct lmpdata_t *lmp) {
+    u8 bpp = sl_work_surface->format->BytesPerPixel;
+    u8 *dest = sl_work_surface->pixels;
     u8 *source = lmp ? lmp->data : NULL;
 
     // NOTE: Bounds checking
     if(height && width) {
-        if((x + width) > s->w) width = s->w - x;
-        if((y + height) > s->h) height = s->h - y;
+        if((x + width) > sl_work_surface->w) width = sl_work_surface->w - x;
+        if((y + height) > sl_work_surface->h) height = sl_work_surface->h - y;
     }
     else {
         height = lmp->height;
@@ -99,151 +106,130 @@ draw_raw(SDL_Surface *s, i32 x, i32 y, i32 width, i32 height, u32 color, struct 
     }
 
     // NOTE: First pixel position.
-    dest += (s->w * bpp * y) + (x * bpp);
+    dest += (sl_work_surface->w * bpp * y) + (x * bpp);
 
-    u8 *buffer_walker = dest;
+    u32 *buffer_walker = (u32 *)dest;
 
     for(i32 y = 0; y < height; y++) {
         for(i32 x = 0; x < width; x++) {
             if(color) *buffer_walker = color;
             if(source) {
-                *buffer_walker = *source;
+                SDL_Color c = sl_palette->colors[*source];
+                *buffer_walker = (c.r << 16) | (c.g << 8) | c.b;
                 source++;
             }
 
             buffer_walker++;
         }
 
-        dest += s->w * bpp;
-        buffer_walker = dest;
+        dest += sl_work_surface->w * bpp;
+        buffer_walker = (u32 *)dest;
     }
 }
 
 void
-vid_init_windowed_mode(void) {
-    // TODO: Clean this up.
-    mode_list[mode_count].type = VID_WINDOWED;
-    mode_list[mode_count].width = 320;
-    mode_list[mode_count].height = 240;
-    mode_count++;
-
-    mode_list[mode_count].type = VID_WINDOWED;
-    mode_list[mode_count].width = 640;
-    mode_list[mode_count].height = 480;
-    mode_count++;
-
-    mode_list[mode_count].type = VID_WINDOWED;
-    mode_list[mode_count].width = 800;
-    mode_list[mode_count].height = 600;
-    mode_count++;
-
-    mode_list[mode_count].type = VID_WINDOWED;
-    mode_list[mode_count].width = 1024;
-    mode_list[mode_count].height = 768;
-    mode_count++;
-}
-
-void
 vid_init_fullscreen_mode(void) {
-    SDL_DisplayMode d;
-    i32 num_modes = SDL_GetNumDisplayModes(1);
+    for(u32 i = 0; i < MAX_MODES; i++) {
+        if(!sl_mode_list[i].width) { // NOTE: Start adding fullscreen modes when we hit first empty element in sl_mode_list.
+            SDL_DisplayMode d;
+            i32 num_modes = SDL_GetNumDisplayModes(0);
 
-    // TODO: Multidisplay support.
-    for(i32 i = 0; i < num_modes; i++) {
-        SDL_GetDisplayMode(1, i, &d);
+            // TODO: Multidisplay support.
+            for(i32 x = i; x < num_modes; x++) {
+                SDL_GetDisplayMode(0, x, &d);
 
-        if(d.refresh_rate == 60) {
-            // printf("width: %d - height: %d - vsync: %d\n", d.w, d.h, d.refresh_rate);
-            mode_list[mode_count].type = VID_FULLSCREEN;
-            mode_list[mode_count].width = d.w;
-            mode_list[mode_count].height = d.h;
-            mode_count++;
+                if(d.refresh_rate == 60) {
+                    // printf("width: %d - height: %d - vsync: %d\n", d.w, d.h, d.refresh_rate);
+                    sl_mode_list[x].fullscreen = true;
+                    sl_mode_list[x].width = d.w;
+                    sl_mode_list[x].height = d.h;
+                }
+            }
+            break;
         }
     }
 }
 
 bool
 vid_init(void) {
-    vid_init_windowed_mode();
     vid_init_fullscreen_mode();
+
+    // NOTE: Print out all modes
+    for(u32 i = 0; i < MAX_MODES; i++)
+        printf("width: %d - height: %d - fullscreen: %s\n", sl_mode_list[i].width, sl_mode_list[i].height, sl_mode_list[i].fullscreen ? "true" : "false");
+
     return vid_setmode("Handmade Quake OSX", 1);
 }
 
 bool
 vid_setmode(const char *title, i32 mode) {
-    if(window) vid_shutdown();
+    if(sl_window) vid_shutdown();
 
-    i32 width = mode_list[mode].width;
-    i32 height = mode_list[mode].height;
-    i32 fullscreen_flag = (mode_list[mode].type == VID_WINDOWED) ? 0 : SDL_WINDOW_FULLSCREEN;
+    i32 width = sl_mode_list[mode].width;
+    i32 height = sl_mode_list[mode].height;
+    i32 fullscreen_flag = (sl_mode_list[mode].fullscreen) ? SDL_WINDOW_FULLSCREEN : 0;
 
-    if(SDL_CreateWindowAndRenderer(width, height, fullscreen_flag, &window, &renderer) < 0) return false;
+    SDL_SetHint(SDL_HINT_RENDER_VSYNC, "1");
+    if(SDL_CreateWindowAndRenderer(width, height, fullscreen_flag, &sl_window, &sl_renderer) < 0) return false;
 
     // NOTE: Maintain 4:3 aspect ratio while fullscreen
-    if(fullscreen_flag) SDL_RenderSetLogicalSize(renderer, 320, 240);
+    if(fullscreen_flag) SDL_RenderSetLogicalSize(sl_renderer, 320, 240);
 
     // NOTE: Create surfaces and output texture.
-    work_surface = SDL_CreateRGBSurface(0, 320, 240, 8, 0, 0, 0, 0);
-    tmp_surface = SDL_CreateRGBSurface(0, 320, 240, 32, 0, 0, 0, 0);
-    output_surface = SDL_CreateRGBSurface(0, width, height, 32, 0, 0, 0, 0);
-    output_texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGB888, SDL_TEXTUREACCESS_STREAMING, width, height);
+    sl_work_surface = SDL_CreateRGBSurface(0, 320, 240, 32, 0, 0, 0, 0);
+    sl_output_texture = SDL_CreateTexture(sl_renderer, SDL_PIXELFORMAT_RGB888, SDL_TEXTUREACCESS_STREAMING, 320, 240);
 
     // TODO: Error checking.
-    load_palette(work_surface, "data/palette.lmp");
-    read_lmp(&disc_data, "data/DISC.lmp");
-    read_lmp(&pause_data, "data/pause.lmp");
+    load_palette("data/palette.lmp");
+    read_lmp(&sl_disc_data, "data/DISC.lmp");
+    read_lmp(&sl_pause_data, "data/pause.lmp");
+
+    return true;
+}
+
+bool
+vid_draw(void) {
+    draw_rect(0, 0, sl_work_surface->w, sl_work_surface->h, SDL_MapRGB(sl_work_surface->format, 100, 100, 0));
+    draw_lmp(20, 20, &sl_pause_data);
+    draw_lmp(20, 60, &sl_disc_data);
 
     return true;
 }
 
 bool
 vid_update(void) {
-    void *output_buffer = NULL;
-    i32 pitch;
-
-    draw_rect(work_surface, 0, 0, work_surface->w, work_surface->h, SDL_MapRGB(work_surface->format, 100, 100, 0));
-    draw_lmp(work_surface, 20, 20, &pause_data);
-    draw_lmp(work_surface, 20, 60, &disc_data);
-
     // NOTE: Method of updating 8-bit palette without calling SDL_CreateTextureFromSurface every frame.
     // NOTE: http://sandervanderburg.blogspot.ca/2014/05/rendering-8-bit-palettized-surfaces-in.html
 
-    // NOTE: work_surface -> tmp_surface = 8-bit -> 32-bit.
-    // NOTE: tmp_surface -> output_surface = 320x240 -> output resolution.
-    if(SDL_BlitSurface(work_surface, NULL, tmp_surface, NULL) < 0) return false;
-    if(SDL_BlitScaled(tmp_surface, NULL, output_surface, NULL) < 0) return false;
+    void *output_buffer = NULL;
+    i32 pitch;
 
-    // NOTE: Lock the texture, convert output_surface to a more native format, then unlock the texture.
-    // NOTE: After unlocking, output_texture will hold the final pixel data.
-    SDL_LockTexture(output_texture, NULL, &output_buffer, &pitch);
+    // NOTE: Copy sl_work_surface pixels to sl_output_texture's pixel buffer.
+    SDL_LockTexture(sl_output_texture, NULL, &output_buffer, &pitch);
+    memcpy(output_buffer, sl_work_surface->pixels, sl_work_surface->pitch * sl_work_surface->h);
+    SDL_UnlockTexture(sl_output_texture);
 
-    SDL_ConvertPixels(output_surface->w, output_surface->h, output_surface->format->format,
-        output_surface->pixels, output_surface->pitch, SDL_PIXELFORMAT_RGB888, output_buffer, pitch);
-
-    SDL_UnlockTexture(output_texture);
-
-    // NOTE: Output the texture to the screen.
-    SDL_RenderCopy(renderer, output_texture, NULL, NULL);
-    SDL_RenderPresent(renderer);
-    SDL_RenderClear(renderer);
+    // NOTE: Output the texture to the screen. SDL_RenderCopy will scale the texture up.
+    SDL_RenderClear(sl_renderer);
+    SDL_RenderCopy(sl_renderer, sl_output_texture, NULL, NULL);
+    SDL_RenderPresent(sl_renderer);
 
     return true;
 }
 
 void
 vid_shutdown(void) {
-    free(disc_data.data);
-    free(pause_data.data);
-    SDL_FreeSurface(work_surface);
-    SDL_FreeSurface(tmp_surface);
-    SDL_FreeSurface(output_surface);
-    SDL_DestroyTexture(output_texture);
-    SDL_DestroyRenderer(renderer);
-    SDL_DestroyWindow(window);
+    free(sl_disc_data.data);
+    free(sl_pause_data.data);
+    SDL_FreePalette(sl_palette);
+    SDL_FreeSurface(sl_work_surface);
+    SDL_DestroyTexture(sl_output_texture);
+    SDL_DestroyRenderer(sl_renderer);
+    SDL_DestroyWindow(sl_window);
 }
 
 void
 vid_toggle_fullscreen(void) {
-    bool is_fullscreen = SDL_GetWindowFlags(window) & SDL_WINDOW_FULLSCREEN;
-    is_fullscreen ? SDL_SetWindowFullscreen(window, 0) : SDL_SetWindowFullscreen(window, SDL_WINDOW_FULLSCREEN);
+    bool is_fullscreen = SDL_GetWindowFlags(sl_window) & SDL_WINDOW_FULLSCREEN;
+    is_fullscreen ? SDL_SetWindowFullscreen(sl_window, 0) : SDL_SetWindowFullscreen(sl_window, SDL_WINDOW_FULLSCREEN);
 }

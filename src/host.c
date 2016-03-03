@@ -1,5 +1,12 @@
 #include "host.h"
 
+i32
+frame_count(i32 target_fps) {
+    static u8 frame = 0;
+    if(frame >= target_fps) frame = 0;
+    return ++frame;
+}
+
 bool
 host_filter_time(double time) {
     static double real_time, old_real_time, delta = 0.0;
@@ -20,22 +27,16 @@ host_filter_time(double time) {
 bool
 host_init() {
     SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_TIMER);
-    vid_init();
-
-    return true;
+    return vid_init();
 }
 
 bool
 host_frame(double timestep) {
-    if(!host_filter_time(timestep)) return true;
+    if(host_filter_time(timestep)) {
+        // printf("Frame: %d\n", frame_count(72));
+        if(!sys_sendkeyevents() || !vid_draw() || !vid_update()) return false;
+    }
 
-    if(!sys_sendkeyevents()) return false;
-    if(!vid_update()) return false;
-    //
-    // static u8 frame = 0;
-    // if(frame >= 72) frame = 0;
-    //
-    // printf("Frame: %d\n", ++frame);
     return true;
 }
 
