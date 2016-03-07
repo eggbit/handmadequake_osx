@@ -35,7 +35,7 @@ sys_sendkeyevents() {
     SDL_Event event;
     SDL_PumpEvents();
 
-    if(sdl_event_exists(&event, SDL_KEYDOWN)) {
+    if(SDL_EVENT_EXISTS(&event, SDL_KEYDOWN)) {
         SDL_Keycode key = event.key.keysym.sym;
 
         if(key == SDLK_z) vid_setmode("Handmade Que?", 1);
@@ -45,7 +45,7 @@ sys_sendkeyevents() {
         if(key == SDLK_t) vid_toggle_fullscreen();
     }
 
-    if(sdl_event_exists(&event, SDL_QUIT)) return false;
+    if(SDL_EVENT_EXISTS(&event, SDL_QUIT)) return false;
 
     SDL_FlushEvents(SDL_FIRSTEVENT, SDL_LASTEVENT);
     return true;

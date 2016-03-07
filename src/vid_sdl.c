@@ -1,8 +1,8 @@
 #include "vid.h"
 
 // NOTE: Asset drawing helpers
-#define draw_lmp(x, y, lmp_struct) draw_raw(x, y, 0, 0, 0, lmp_struct)
-#define draw_rect(x, y, w, h, color) draw_raw(x, y, w, h, color, NULL)
+#define DRAW_LMP(x, y, lmp_struct) draw_raw(x, y, 0, 0, 0, lmp_struct)
+#define DRAW_RECT(x, y, w, h, color) draw_raw(x, y, w, h, color, NULL)
 
 #define MAX_MODES 30
 
@@ -37,29 +37,29 @@ static SDL_Palette *sl_palette = NULL;
 
 size_t
 read_lmp(struct lmpdata_t *lmp, const char *file_path) {
-    FILE *file = fopen(file_path, "rb");
-    size_t bytes_read = 0;
+    i32 file, bytes_read;
 
-    if(!file) goto escape;
+    file = sys_file_open_read(file_path, &bytes_read);
+    if(file < 0) goto escape;
 
-    fread(&lmp->width, 1, sizeof(lmp->width), file);
-    fread(&lmp->height, 1, sizeof(lmp->height), file);
+    sys_file_read(file, &lmp->width, sizeof(lmp->width));
+    sys_file_read(file, &lmp->height, sizeof(lmp->height));
 
     printf("width = %d, height = %d\n", lmp->width, lmp->height);
 
     // NOTE: If width or height are unreasonable, assume it's a 256-color palette.
     if(lmp->width > 1024 || lmp->height > 1024) {
-        rewind(file);
+        sys_file_rewind(file);
         lmp->data = malloc(256 * 3);
-        bytes_read = fread(lmp->data, 1, 256 * 3, file);
+        bytes_read = sys_file_read(file, lmp->data, 256 * 3);
     }
     else {
         lmp->data = malloc(lmp->width * lmp->height);
-        bytes_read = fread(lmp->data, 1, lmp->width * lmp->height, file);
+        bytes_read = sys_file_read(file, lmp->data, lmp->width * lmp->height);
     }
 
 escape:
-    if(file) fclose(file);
+    sys_file_close(file);
     return bytes_read;
 }
 
@@ -88,7 +88,7 @@ escape:
     return bytes_read;
 }
 
-// NOTE: draw_lmp and draw_rect are based on this function
+// NOTE: DRAW_LMP and DRAW_RECT are based on this function
 void
 draw_raw(i32 x, i32 y, i32 width, i32 height, u32 color, struct lmpdata_t *lmp) {
     u8 bpp = sl_work_surface->format->BytesPerPixel;
@@ -189,9 +189,9 @@ vid_setmode(const char *title, i32 mode) {
 
 bool
 vid_draw(void) {
-    draw_rect(0, 0, sl_work_surface->w, sl_work_surface->h, SDL_MapRGB(sl_work_surface->format, 100, 100, 0));
-    draw_lmp(20, 20, &sl_pause_data);
-    draw_lmp(20, 60, &sl_disc_data);
+    DRAW_RECT(0, 0, sl_work_surface->w, sl_work_surface->h, SDL_MapRGB(sl_work_surface->format, 100, 100, 0));
+    DRAW_LMP(20, 20, &sl_pause_data);
+    DRAW_LMP(20, 60, &sl_disc_data);
 
     return true;
 }

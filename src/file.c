@@ -1,13 +1,14 @@
 #include "file.h"
 
 #define MAX_HANDLES 10
+#define VALID_HANDLE(h) (h >= 0 || h < MAX_HANDLES || sl_handles[h])
 
-static FILE *sl_file_handles[MAX_HANDLES] = { 0 };
+static FILE *sl_handles[MAX_HANDLES] = { 0 };
 
 static i32
 find_handle(void) {
     for(i32 i = 0; i < MAX_HANDLES; i++) {
-        if(!sl_file_handles[i]) return i;
+        if(!sl_handles[i]) return i;
     }
 
     return -1;
@@ -24,7 +25,7 @@ file_length(FILE *f) {
     return length;
 }
 
-i32
+static i32
 file_open(const char *path, const char *mode, i32 *size) {
     i32 handle_index = find_handle();
     if(handle_index < 0) goto error;
@@ -32,7 +33,7 @@ file_open(const char *path, const char *mode, i32 *size) {
     FILE *f = fopen(path, mode);
     if(!f) goto error;
 
-    sl_file_handles[handle_index] = f;
+    sl_handles[handle_index] = f;
 
     if(size) *size = file_length(f);
     goto escape;
@@ -54,13 +55,12 @@ sys_file_open_write(const char *path) {
     return file_open(path, "wb", NULL);
 }
 
-i32
+static i32
 file_read_write(i32 handle, void *buffer, i32 count, bool read_mode) {
-    if(handle < 0 || handle > MAX_HANDLES - 1 || !buffer) return -1;
-    
-    return read_mode ? (i32)fread(buffer, 1, count, sl_file_handles[handle]) : (i32)fwrite(buffer, 1, count, sl_file_handles[handle]);
-}
+    if(!VALID_HANDLE(handle) || !buffer) return -1;
 
+    return read_mode ? (i32)fread(buffer, 1, count, sl_handles[handle]) : (i32)fwrite(buffer, 1, count, sl_handles[handle]);
+}
 
 i32
 sys_file_read(i32 handle, void *dest, i32 count) {
@@ -74,15 +74,18 @@ sys_file_write(i32 handle, void *source, i32 count) {
 
 void
 sys_file_close(i32 handle) {
-    if(handle < 0 || handle > MAX_HANDLES - 1 || !sl_file_handles[handle]) return;
-
-    fclose(sl_file_handles[handle]);
-    sl_file_handles[handle] = NULL;
+    if(VALID_HANDLE(handle)) {
+        fclose(sl_handles[handle]);
+        sl_handles[handle] = NULL;
+    }
 }
 
 void
 sys_file_seek(i32 handle, i32 position) {
-    if(handle < 0 || handle > MAX_HANDLES - 1 || !sl_file_handles[handle]) return;
+    if(VALID_HANDLE(handle)) fseek(sl_handles[handle], position, SEEK_SET);
+}
 
-    fseek(sl_file_handles[handle], position, SEEK_SET);
+void
+sys_file_rewind(i32 handle) {
+    if(VALID_HANDLE(handle)) rewind(sl_handles[handle]);
 }

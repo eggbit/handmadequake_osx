@@ -7,7 +7,7 @@ bool sys_sendkeyevents(void);
 const char *sys_va(const char *format, ...);
 
 // Helper macros
-#define sdl_event_exists(sdl_event, e_type) \
+#define SDL_EVENT_EXISTS(sdl_event, e_type) \
     SDL_PeepEvents(sdl_event, 1, SDL_GETEVENT, e_type, e_type)
 
 #endif // sys_h
