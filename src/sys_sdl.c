@@ -65,8 +65,31 @@ sys_va(const char *format, ...) {
 
 int
 main(int argc, const char *argv[]) {
-    const char *s = sys_va("Hello, 0x%x and %f!", 255, 5.435);
-    puts(s);
+    i32 size, in_file, out_file;
+    void *buffer = NULL;
+
+    in_file = sys_file_open_read("src/sys_sdl.c", &size);
+    out_file = sys_file_open_write("src/sys_sdl.out");
+
+    if(in_file < 0) {
+        puts("in_file error");
+        goto escape;
+    }
+
+    if(out_file < 0) {
+        puts("out_file error");
+        goto escape;
+    }
+
+    buffer = malloc(size);
+
+    sys_file_read(in_file, buffer, size);
+    sys_file_write(out_file, buffer, size);
+
+escape:
+    sys_file_close(in_file);
+    sys_file_close(out_file);
+    free(buffer);
 
     return 0;
 

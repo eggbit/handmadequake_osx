@@ -22,5 +22,6 @@ typedef uint64_t u64;
 #include "host.h"
 #include "vid.h"
 #include "sys.h"
+#include "file.h"
 
 #endif /* quakedef_h */
