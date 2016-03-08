@@ -1,5 +1,5 @@
 CC = clang
-CFLAGS = -std=c11 -g -O0 -Wall -Wextra -Werror -Wno-unused-parameter -Wno-missing-field-initializers
+CFLAGS = -std=c11 -g -O0 -Wall -Wextra -Werror -Wno-missing-field-initializers
 IFLAGS = -I/usr/local/include/SDL2 -D_THREAD_SAFE
 LFLAGS = -L/usr/local/lib -lSDL2
 FILES = src/sys_sdl.c src/common.c src/vid_sdl.c src/host.c src/file.c

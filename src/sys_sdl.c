@@ -1,6 +1,5 @@
 // TODO: SDL timing while windowed is very, very off.
 // TODO: Proper error checking everywhere.
-// NOTE: Since SDL needs to convert an 8-bit surface to 32-bits to get anything to display anyway, all 32-bit pixel code is redundant.
 
 #include "sys.h"
 #include <stdarg.h>
@@ -64,12 +63,12 @@ sys_va(const char *format, ...) {
 }
 
 int
-main(int argc, const char *argv[]) {
+main(__unused int argc, __unused const char *argv[]) {
     i32 size, in_file, out_file;
     void *buffer = NULL;
 
-    in_file = sys_file_open_read("src/sys_sdl.c", &size);
-    out_file = sys_file_open_write("src/sys_sdl.out");
+    in_file = sys_fopen_rb("src/sys_sdl.c", &size);
+    out_file = sys_fopen_wb("src/sys_sdl.out");
 
     if(in_file < 0) {
         puts("in_file error");
@@ -83,12 +82,12 @@ main(int argc, const char *argv[]) {
 
     buffer = malloc(size);
 
-    sys_file_read(in_file, buffer, size);
-    sys_file_write(out_file, buffer, size);
+    sys_fread(in_file, buffer, size);
+    sys_fwrite(out_file, buffer, size);
 
 escape:
-    sys_file_close(in_file);
-    sys_file_close(out_file);
+    sys_fclose(in_file);
+    sys_fclose(out_file);
     free(buffer);
 
     return 0;

@@ -1,21 +1,21 @@
 #include "file.h"
 
 #define MAX_HANDLES 10
-#define VALID_HANDLE(h) (h >= 0 || h < MAX_HANDLES || sl_handles[h])
+#define VALID_HANDLE(h) (h >= 0 || h < MAX_HANDLES || s_fhandles[h])
 
-static FILE *sl_handles[MAX_HANDLES] = { 0 };
+static FILE *s_fhandles[MAX_HANDLES] = { 0 };
 
 static i32
-find_handle(void) {
+s_gethandle(void) {
     for(i32 i = 0; i < MAX_HANDLES; i++) {
-        if(!sl_handles[i]) return i;
+        if(!s_fhandles[i]) return i;
     }
 
     return -1;
 }
 
 static i32
-file_length(FILE *f) {
+s_flength(FILE *f) {
     i32 length;
 
     fseek(f, 0, SEEK_END);
@@ -26,16 +26,16 @@ file_length(FILE *f) {
 }
 
 static i32
-file_open(const char *path, const char *mode, i32 *size) {
-    i32 handle_index = find_handle();
+s_fopen(const char *path, const char *mode, i32 *size) {
+    i32 handle_index = s_gethandle();
     if(handle_index < 0) goto error;
 
     FILE *f = fopen(path, mode);
     if(!f) goto error;
 
-    sl_handles[handle_index] = f;
+    s_fhandles[handle_index] = f;
 
-    if(size) *size = file_length(f);
+    if(size) *size = s_flength(f);
     goto escape;
 
 error:
@@ -46,46 +46,46 @@ escape:
 }
 
 i32
-sys_file_open_read(const char *path, i32 *size) {
-    return file_open(path, "rb", size);
+sys_fopen_rb(const char *path, i32 *size) {
+    return s_fopen(path, "rb", size);
 }
 
 i32
-sys_file_open_write(const char *path) {
-    return file_open(path, "wb", NULL);
+sys_fopen_wb(const char *path) {
+    return s_fopen(path, "wb", NULL);
 }
 
 static i32
-file_read_write(i32 handle, void *buffer, i32 count, bool read_mode) {
+s_freadwrite(i32 handle, void *buffer, i32 count, bool read_mode) {
     if(!VALID_HANDLE(handle) || !buffer) return -1;
 
-    return read_mode ? (i32)fread(buffer, 1, count, sl_handles[handle]) : (i32)fwrite(buffer, 1, count, sl_handles[handle]);
+    return read_mode ? (i32)fread(buffer, 1, count, s_fhandles[handle]) : (i32)fwrite(buffer, 1, count, s_fhandles[handle]);
 }
 
 i32
-sys_file_read(i32 handle, void *dest, i32 count) {
-    return file_read_write(handle, dest, count, true);
+sys_fread(i32 handle, void *dest, i32 count) {
+    return s_freadwrite(handle, dest, count, true);
 }
 
 i32
-sys_file_write(i32 handle, void *source, i32 count) {
-    return file_read_write(handle, source, count, false);
+sys_fwrite(i32 handle, void *source, i32 count) {
+    return s_freadwrite(handle, source, count, false);
 }
 
 void
-sys_file_close(i32 handle) {
+sys_fclose(i32 handle) {
     if(VALID_HANDLE(handle)) {
-        fclose(sl_handles[handle]);
-        sl_handles[handle] = NULL;
+        fclose(s_fhandles[handle]);
+        s_fhandles[handle] = NULL;
     }
 }
 
 void
-sys_file_seek(i32 handle, i32 position) {
-    if(VALID_HANDLE(handle)) fseek(sl_handles[handle], position, SEEK_SET);
+sys_fseek(i32 handle, i32 position) {
+    if(VALID_HANDLE(handle)) fseek(s_fhandles[handle], position, SEEK_SET);
 }
 
 void
-sys_file_rewind(i32 handle) {
-    if(VALID_HANDLE(handle)) rewind(sl_handles[handle]);
+sys_frewind(i32 handle) {
+    if(VALID_HANDLE(handle)) rewind(s_fhandles[handle]);
 }

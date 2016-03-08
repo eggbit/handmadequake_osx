@@ -1,7 +1,7 @@
 #include "host.h"
 
-i32
-frame_count(i32 target_fps) {
+__unused static i32
+s_framecount(i32 target_fps) {
     static u8 frame = 0;
     if(frame >= target_fps) frame = 0;
     return ++frame;
@@ -33,7 +33,7 @@ host_init() {
 bool
 host_frame(double timestep) {
     if(host_filter_time(timestep)) {
-        // printf("Frame: %d\n", frame_count(72));
+        // printf("Frame: %d\n", s_framecount(72));
         if(!sys_sendkeyevents() || !vid_draw() || !vid_update()) return false;
     }
 

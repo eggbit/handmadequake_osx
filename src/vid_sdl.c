@@ -1,8 +1,8 @@
 #include "vid.h"
 
 // NOTE: Asset drawing helpers
-#define DRAW_LMP(x, y, lmp_struct) draw_raw(x, y, 0, 0, 0, lmp_struct)
-#define DRAW_RECT(x, y, w, h, color) draw_raw(x, y, w, h, color, NULL)
+#define DRAW_LMP(x, y, lmp_struct) s_drawraw(x, y, 0, 0, 0, lmp_struct)
+#define DRAW_RECT(x, y, w, h, color) s_drawraw(x, y, w, h, color, NULL)
 
 #define MAX_MODES 30
 
@@ -26,51 +26,51 @@ static struct vmode_t sl_mode_list[MAX_MODES] = {
     { false, 1024, 768 }
 };
 
-static struct lmpdata_t sl_disc_data = { 0 };
-static struct lmpdata_t sl_pause_data = { 0 };
+static struct lmpdata_t s_discdata = { 0 };
+static struct lmpdata_t s_pausedata = { 0 };
 
-static SDL_Window *sl_window = NULL;
-static SDL_Renderer *sl_renderer = NULL;
-static SDL_Surface *sl_work_surface = NULL;   // NOTE: Holds pixel data we'll directly modify.
-static SDL_Texture *sl_output_texture = NULL; // NOTE: Holds the final pixel data that'll be displayed.
-static SDL_Palette *sl_palette = NULL;
+static SDL_Window *s_window = NULL;
+static SDL_Renderer *s_renderer = NULL;
+static SDL_Surface *s_worksurface = NULL;   // NOTE: Holds pixel data we'll directly modify.
+static SDL_Texture *s_outtexture = NULL; // NOTE: Holds the final pixel data that'll be displayed.
+static SDL_Palette *s_palette = NULL;
 
-size_t
-read_lmp(struct lmpdata_t *lmp, const char *file_path) {
+static size_t
+s_readlmp(struct lmpdata_t *lmp, const char *file_path) {
     i32 file, bytes_read;
 
-    file = sys_file_open_read(file_path, &bytes_read);
+    file = sys_fopen_rb(file_path, &bytes_read);
     if(file < 0) goto escape;
 
-    sys_file_read(file, &lmp->width, sizeof(lmp->width));
-    sys_file_read(file, &lmp->height, sizeof(lmp->height));
+    sys_fread(file, &lmp->width, sizeof(lmp->width));
+    sys_fread(file, &lmp->height, sizeof(lmp->height));
 
     printf("width = %d, height = %d\n", lmp->width, lmp->height);
 
     // NOTE: If width or height are unreasonable, assume it's a 256-color palette.
     if(lmp->width > 1024 || lmp->height > 1024) {
-        sys_file_rewind(file);
+        sys_frewind(file);
         lmp->data = malloc(256 * 3);
-        bytes_read = sys_file_read(file, lmp->data, 256 * 3);
+        bytes_read = sys_fread(file, lmp->data, 256 * 3);
     }
     else {
         lmp->data = malloc(lmp->width * lmp->height);
-        bytes_read = sys_file_read(file, lmp->data, lmp->width * lmp->height);
+        bytes_read = sys_fread(file, lmp->data, lmp->width * lmp->height);
     }
 
 escape:
-    sys_file_close(file);
+    sys_fclose(file);
     return bytes_read;
 }
 
-size_t
-load_palette(const char *palette_path) {
+static size_t
+s_loadpalette(const char *palette_path) {
     struct lmpdata_t palette = {0};
-    size_t bytes_read = read_lmp(&palette, "data/palette.lmp");
+    size_t bytes_read = s_readlmp(&palette, palette_path);
 
     if(!bytes_read) goto escape;
 
-    sl_palette = SDL_AllocPalette(256);
+    s_palette = SDL_AllocPalette(256);
 
     SDL_Color c[255];
     u8 *p_data = palette.data;
@@ -81,7 +81,7 @@ load_palette(const char *palette_path) {
         c[i].b = *p_data++;
     }
 
-    SDL_SetPaletteColors(sl_palette, c, 0, 256);
+    SDL_SetPaletteColors(s_palette, c, 0, 256);
 
 escape:
     free(palette.data);
@@ -89,16 +89,16 @@ escape:
 }
 
 // NOTE: DRAW_LMP and DRAW_RECT are based on this function
-void
-draw_raw(i32 x, i32 y, i32 width, i32 height, u32 color, struct lmpdata_t *lmp) {
-    u8 bpp = sl_work_surface->format->BytesPerPixel;
-    u8 *dest = sl_work_surface->pixels;
+static void
+s_drawraw(i32 x, i32 y, i32 width, i32 height, u32 color, struct lmpdata_t *lmp) {
+    u8 bpp = s_worksurface->format->BytesPerPixel;
+    u8 *dest = s_worksurface->pixels;
     u8 *source = lmp ? lmp->data : NULL;
 
     // NOTE: Bounds checking
     if(height && width) {
-        if((x + width) > sl_work_surface->w) width = sl_work_surface->w - x;
-        if((y + height) > sl_work_surface->h) height = sl_work_surface->h - y;
+        if((x + width) > s_worksurface->w) width = s_worksurface->w - x;
+        if((y + height) > s_worksurface->h) height = s_worksurface->h - y;
     }
     else {
         height = lmp->height;
@@ -106,7 +106,7 @@ draw_raw(i32 x, i32 y, i32 width, i32 height, u32 color, struct lmpdata_t *lmp) 
     }
 
     // NOTE: First pixel position.
-    dest += (sl_work_surface->w * bpp * y) + (x * bpp);
+    dest += (s_worksurface->w * bpp * y) + (x * bpp);
 
     u32 *buffer_walker = (u32 *)dest;
 
@@ -114,7 +114,7 @@ draw_raw(i32 x, i32 y, i32 width, i32 height, u32 color, struct lmpdata_t *lmp) 
         for(i32 x = 0; x < width; x++) {
             if(color) *buffer_walker = color;
             if(source) {
-                SDL_Color c = sl_palette->colors[*source];
+                SDL_Color c = s_palette->colors[*source];
                 *buffer_walker = (c.r << 16) | (c.g << 8) | c.b;
                 source++;
             }
@@ -122,7 +122,7 @@ draw_raw(i32 x, i32 y, i32 width, i32 height, u32 color, struct lmpdata_t *lmp) 
             buffer_walker++;
         }
 
-        dest += sl_work_surface->w * bpp;
+        dest += s_worksurface->w * bpp;
         buffer_walker = (u32 *)dest;
     }
 }
@@ -163,35 +163,36 @@ vid_init(void) {
 
 bool
 vid_setmode(const char *title, i32 mode) {
-    if(sl_window) vid_shutdown();
+    if(s_window) vid_shutdown();
 
     i32 width = sl_mode_list[mode].width;
     i32 height = sl_mode_list[mode].height;
     i32 fullscreen_flag = (sl_mode_list[mode].fullscreen) ? SDL_WINDOW_FULLSCREEN : 0;
 
     SDL_SetHint(SDL_HINT_RENDER_VSYNC, "1");
-    if(SDL_CreateWindowAndRenderer(width, height, fullscreen_flag, &sl_window, &sl_renderer) < 0) return false;
+    if(SDL_CreateWindowAndRenderer(width, height, fullscreen_flag, &s_window, &s_renderer) < 0) return false;
+    SDL_SetWindowTitle(s_window, title);
 
     // NOTE: Maintain 4:3 aspect ratio while fullscreen
-    if(fullscreen_flag) SDL_RenderSetLogicalSize(sl_renderer, 320, 240);
+    if(fullscreen_flag) SDL_RenderSetLogicalSize(s_renderer, 320, 240);
 
     // NOTE: Create surfaces and output texture.
-    sl_work_surface = SDL_CreateRGBSurface(0, 320, 240, 32, 0, 0, 0, 0);
-    sl_output_texture = SDL_CreateTexture(sl_renderer, SDL_PIXELFORMAT_RGB888, SDL_TEXTUREACCESS_STREAMING, 320, 240);
+    s_worksurface = SDL_CreateRGBSurface(0, 320, 240, 32, 0, 0, 0, 0);
+    s_outtexture = SDL_CreateTexture(s_renderer, SDL_PIXELFORMAT_RGB888, SDL_TEXTUREACCESS_STREAMING, 320, 240);
 
     // TODO: Error checking.
-    load_palette("data/palette.lmp");
-    read_lmp(&sl_disc_data, "data/DISC.lmp");
-    read_lmp(&sl_pause_data, "data/pause.lmp");
+    s_loadpalette("data/palette.lmp");
+    s_readlmp(&s_discdata, "data/DISC.lmp");
+    s_readlmp(&s_pausedata, "data/pause.lmp");
 
     return true;
 }
 
 bool
 vid_draw(void) {
-    DRAW_RECT(0, 0, sl_work_surface->w, sl_work_surface->h, SDL_MapRGB(sl_work_surface->format, 100, 100, 0));
-    DRAW_LMP(20, 20, &sl_pause_data);
-    DRAW_LMP(20, 60, &sl_disc_data);
+    DRAW_RECT(0, 0, s_worksurface->w, s_worksurface->h, SDL_MapRGB(s_worksurface->format, 100, 100, 0));
+    DRAW_LMP(20, 20, &s_pausedata);
+    DRAW_LMP(20, 60, &s_discdata);
 
     return true;
 }
@@ -204,32 +205,32 @@ vid_update(void) {
     void *output_buffer = NULL;
     i32 pitch;
 
-    // NOTE: Copy sl_work_surface pixels to sl_output_texture's pixel buffer.
-    SDL_LockTexture(sl_output_texture, NULL, &output_buffer, &pitch);
-    memcpy(output_buffer, sl_work_surface->pixels, sl_work_surface->pitch * sl_work_surface->h);
-    SDL_UnlockTexture(sl_output_texture);
+    // NOTE: Copy s_worksurface pixels to s_outtexture's pixel buffer.
+    SDL_LockTexture(s_outtexture, NULL, &output_buffer, &pitch);
+    memcpy(output_buffer, s_worksurface->pixels, s_worksurface->pitch * s_worksurface->h);
+    SDL_UnlockTexture(s_outtexture);
 
     // NOTE: Output the texture to the screen. SDL_RenderCopy will scale the texture up.
-    SDL_RenderClear(sl_renderer);
-    SDL_RenderCopy(sl_renderer, sl_output_texture, NULL, NULL);
-    SDL_RenderPresent(sl_renderer);
+    SDL_RenderClear(s_renderer);
+    SDL_RenderCopy(s_renderer, s_outtexture, NULL, NULL);
+    SDL_RenderPresent(s_renderer);
 
     return true;
 }
 
 void
 vid_shutdown(void) {
-    free(sl_disc_data.data);
-    free(sl_pause_data.data);
-    SDL_FreePalette(sl_palette);
-    SDL_FreeSurface(sl_work_surface);
-    SDL_DestroyTexture(sl_output_texture);
-    SDL_DestroyRenderer(sl_renderer);
-    SDL_DestroyWindow(sl_window);
+    free(s_discdata.data);
+    free(s_pausedata.data);
+    SDL_FreePalette(s_palette);
+    SDL_FreeSurface(s_worksurface);
+    SDL_DestroyTexture(s_outtexture);
+    SDL_DestroyRenderer(s_renderer);
+    SDL_DestroyWindow(s_window);
 }
 
 void
 vid_toggle_fullscreen(void) {
-    bool is_fullscreen = SDL_GetWindowFlags(sl_window) & SDL_WINDOW_FULLSCREEN;
-    is_fullscreen ? SDL_SetWindowFullscreen(sl_window, 0) : SDL_SetWindowFullscreen(sl_window, SDL_WINDOW_FULLSCREEN);
+    bool is_fullscreen = SDL_GetWindowFlags(s_window) & SDL_WINDOW_FULLSCREEN;
+    is_fullscreen ? SDL_SetWindowFullscreen(s_window, 0) : SDL_SetWindowFullscreen(s_window, SDL_WINDOW_FULLSCREEN);
 }
