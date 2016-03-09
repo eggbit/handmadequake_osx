@@ -1,9 +1,5 @@
 #include "vid.h"
 
-// NOTE: Asset drawing helpers
-#define DRAW_LMP(x, y, lmp_struct) s_drawraw(x, y, 0, 0, 0, lmp_struct)
-#define DRAW_RECT(x, y, w, h, color) s_drawraw(x, y, w, h, color, NULL)
-
 #define MAX_MODES 30
 
 struct lmpdata_t {
@@ -127,6 +123,16 @@ s_drawraw(i32 x, i32 y, i32 width, i32 height, u32 color, struct lmpdata_t *lmp)
     }
 }
 
+static void
+s_drawlmp(i32 x, i32 y, struct lmpdata_t *lmp) {
+    s_drawraw(x, y, 0, 0, 0, lmp);
+}
+
+static void
+s_drawrect(i32 x, i32 y, i32 w, i32 h, i32 color) {
+    s_drawraw(x, y, w, h, color, NULL);
+}
+
 void
 vid_init_fullscreen_mode(void) {
     for(u32 i = 0; i < MAX_MODES; i++) {
@@ -190,9 +196,9 @@ vid_setmode(const char *title, i32 mode) {
 
 bool
 vid_draw(void) {
-    DRAW_RECT(0, 0, s_worksurface->w, s_worksurface->h, SDL_MapRGB(s_worksurface->format, 100, 100, 0));
-    DRAW_LMP(20, 20, &s_pausedata);
-    DRAW_LMP(20, 60, &s_discdata);
+    s_drawrect(0, 0, s_worksurface->w, s_worksurface->h, SDL_MapRGB(s_worksurface->format, 100, 100, 0));
+    s_drawlmp(20, 20, &s_pausedata);
+    s_drawlmp(20, 60, &s_discdata);
 
     return true;
 }
