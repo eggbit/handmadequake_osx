@@ -112,25 +112,12 @@ com_load_pak(const char *path) {
     goto escape;
 
 error:
-    com_free(pak);
+    COM_FREE(pak);
     printf("Error opening PAK file.\n");
 
 escape:
     if(pak) sys_fclose(pak->pack_handle);
     return pak;
-}
-
-// TODO: com or sys?
-void
-com_free(void *mem) {
-    free(mem);
-    mem = NULL;
-}
-
-void
-com_free_pak(struct pack_t *pak) {
-    com_free(pak->pak_files);
-    com_free(pak);
 }
 
 int
@@ -143,7 +130,7 @@ main(__unused int argc, __unused const char *argv[]) {
                 i, pak0->pak_files[i].file_name, pak0->pak_files[i].file_position, pak0->pak_files[i].file_length);
         }
 
-        com_free_pak(pak0);
+        COM_FREE_PAK(pak0);
     }
 
 //     if(!host_init()) goto exit;
