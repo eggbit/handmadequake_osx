@@ -4,8 +4,7 @@
 #include "sys.h"
 #include <stdarg.h>
 
-#define PRINT_DEC(d)    printf("%s: %d\n", #d, d)
-#define INVALID_PAK(p)  (p.magic[0] != 'P' && p.magic[1] != 'A' && p.magic[2] != 'C' && p.magic[3] != 'K')
+#define VALID_PAK(p)  (p.magic[0] == 'P' && p.magic[1] == 'A' && p.magic[2] == 'C' && p.magic[3] == 'K')
 
 struct timer_t {
     double seconds_per_tick;
@@ -57,7 +56,7 @@ sys_sendkeyevents() {
     SDL_Event event;
     SDL_PumpEvents();
 
-    if(SDL_EVENT_EXISTS(&event, SDL_KEYDOWN)) {
+    if(sdl_event_exists(&event, SDL_KEYDOWN)) {
         SDL_Keycode key = event.key.keysym.sym;
 
         if(key == SDLK_z) vid_setmode("Handmade Que?", 1);
@@ -67,7 +66,7 @@ sys_sendkeyevents() {
         if(key == SDLK_t) vid_toggle_fullscreen();
     }
 
-    if(SDL_EVENT_EXISTS(&event, SDL_QUIT)) return false;
+    if(sdl_event_exists(&event, SDL_QUIT)) return false;
 
     SDL_FlushEvents(SDL_FIRSTEVENT, SDL_LASTEVENT);
     return true;
@@ -99,7 +98,7 @@ com_load_pak(const char *path) {
 
     // NOTE: Read the header and verify.
     sys_fread(pak->pack_handle, &pak_header, sizeof(pak_header));
-    if(INVALID_PAK(pak_header)) goto error;
+    if(!VALID_PAK(pak_header)) goto error;
 
     // NOTE: Get the nunber of files in the .PAK and allocate enough space for them.
     pak->num_files = pak_header.directory_length / sizeof(struct packfile_t);
@@ -112,7 +111,7 @@ com_load_pak(const char *path) {
     goto escape;
 
 error:
-    COM_FREE(pak);
+    com_free(pak);
     printf("Error opening PAK file.\n");
 
 escape:
@@ -130,7 +129,7 @@ main(__unused int argc, __unused const char *argv[]) {
                 i, pak0->pak_files[i].file_name, pak0->pak_files[i].file_position, pak0->pak_files[i].file_length);
         }
 
-        COM_FREE_PAK(pak0);
+        com_free_pak(pak0);
     }
 
 //     if(!host_init()) goto exit;

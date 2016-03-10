@@ -7,10 +7,13 @@ bool sys_sendkeyevents(void);
 const char *sys_va(const char *format, ...);
 
 // Helper macros
-#define SDL_EVENT_EXISTS(sdl_event, e_type) \
+#define print_dec(d) \
+    printf("%s: %d\n", #d, d)
+
+#define sdl_event_exists(sdl_event, e_type) \
     SDL_PeepEvents(sdl_event, 1, SDL_GETEVENT, e_type, e_type)
 
-#define COM_FREE(p)     \
+#define com_free(p)     \
     do {                \
         if(p) {         \
             free(p);    \
@@ -18,10 +21,10 @@ const char *sys_va(const char *format, ...);
         }               \
     } while(0)
 
-#define COM_FREE_PAK(p)         \
+#define com_free_pak(p)         \
     do {                        \
-        COM_FREE(p->pak_files); \
-        COM_FREE(p);            \
+        com_free(p->pak_files); \
+        com_free(p);            \
     } while(0)
 
 #endif // sys_h
