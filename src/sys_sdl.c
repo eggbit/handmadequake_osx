@@ -4,12 +4,35 @@
 #include "sys.h"
 #include <stdarg.h>
 
+#define PRINT_DEC(d)    printf("%s: %d\n", #d, d)
+#define INVALID_PAK(p)  (p.magic[0] != 'P' && p.magic[1] != 'A' && p.magic[2] != 'C' && p.magic[3] != 'K')
+
 struct timer_t {
     double seconds_per_tick;
     double oldtime;
     double delta;
     double time_passed;
     u64 time_count;
+};
+
+// NOTE: .PAK header
+struct dpackheader_t {
+    char magic[4];
+    i32 directory_offset;
+    i32 directory_length;
+};
+
+// NOTE: .PAK
+struct pack_t {
+    char pack_name[128];
+    i32 pack_handle;
+    i32 num_files;
+
+    struct packfile_t {
+        char file_name[56];
+        i32 file_position;
+        i32 file_length;
+    } *pak_files;
 };
 
 void
@@ -62,35 +85,59 @@ sys_va(const char *format, ...) {
     return buffer;
 }
 
-int
-main(__unused int argc, __unused const char *argv[]) {
-    i32 size, in_file, out_file;
-    void *buffer = NULL;
+struct pack_t *
+com_load_pak(const char *path) {
+    struct dpackheader_t pak_header;
 
-    in_file = sys_fopen_rb("src/sys_sdl.c", &size);
-    out_file = sys_fopen_wb("src/sys_sdl.out");
+    // NOTE: Allocate the structre we'll be returning.
+    struct pack_t *pak = malloc(sizeof(struct pack_t));
+    q_strcpy(pak->pack_name, path);
 
-    if(in_file < 0) {
-        puts("in_file error");
-        goto escape;
-    }
+    // NOTE: Open the .PAK and verify.
+    pak->pack_handle = sys_fopen_rb(path, NULL);
+    if(pak->pack_handle < 0) goto error;
 
-    if(out_file < 0) {
-        puts("out_file error");
-        goto escape;
-    }
+    // NOTE: Read the header and verify.
+    sys_fread(pak->pack_handle, &pak_header, sizeof(pak_header));
+    if(INVALID_PAK(pak_header)) goto error;
 
-    buffer = malloc(size);
+    // NOTE: Get the nunber of files in the .PAK and allocated enough space for them.
+    pak->num_files = pak_header.directory_length / sizeof(struct packfile_t);
+    pak->pak_files = malloc(pak->num_files * sizeof(struct packfile_t));
 
-    sys_fread(in_file, buffer, size);
-    sys_fwrite(out_file, buffer, size);
+    // NOTE: Move to the start of the files and read in the information.
+    sys_fseek(pak->pack_handle, pak_header.directory_offset);
+    sys_fread(pak->pack_handle, pak->pak_files, pak_header.directory_length);
+
+    goto escape;
+
+error:
+    printf("Error opening PAK file.\n");
 
 escape:
-    sys_fclose(in_file);
-    sys_fclose(out_file);
-    free(buffer);
+    sys_fclose(pak->pack_handle);
+    return pak;
+}
 
-    return 0;
+void
+com_free_pak(struct pack_t *pak) {
+    free(pak->pak_files);
+    pak->pak_files = NULL;
+
+    free(pak);
+    pak = NULL;
+}
+
+int
+main(__unused int argc, __unused const char *argv[]) {
+    struct pack_t *pak0 = com_load_pak("data/PAK0.PAK");
+
+    for(i32 i = 0; i < pak0->num_files; i++) {
+        printf("file_%d: %s - position: %d - size: %d\n",
+            i, pak0->pak_files[i].file_name, pak0->pak_files[i].file_position, pak0->pak_files[i].file_length);
+    }
+
+    com_free_pak(pak0);
 
 //     if(!host_init()) goto exit;
 //
@@ -107,5 +154,6 @@ escape:
 //     if(error != NULL && error[0] != '\0') printf("ERROR: %s\n", error);
 //
 //     host_shutdown();
-//     return 0;
+
+    return 0;
 }
