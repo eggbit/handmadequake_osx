@@ -80,7 +80,7 @@ s_loadpalette(const char *palette_path) {
     SDL_SetPaletteColors(s_palette, c, 0, 256);
 
 escape:
-    free(palette.data);
+    com_free(palette.data);
     return bytes_read;
 }
 
@@ -226,8 +226,8 @@ vid_update(void) {
 
 void
 vid_shutdown(void) {
-    free(s_discdata.data);
-    free(s_pausedata.data);
+    com_free(s_discdata.data);
+    com_free(s_pausedata.data);
     SDL_FreePalette(s_palette);
     SDL_FreeSurface(s_worksurface);
     SDL_DestroyTexture(s_outtexture);

@@ -4,6 +4,7 @@
 #include "quakedef.h"
 
 bool sys_sendkeyevents(void);
+void com_free(void *mem);
 const char *sys_va(const char *format, ...);
 
 // Helper macros

@@ -101,7 +101,7 @@ com_load_pak(const char *path) {
     sys_fread(pak->pack_handle, &pak_header, sizeof(pak_header));
     if(INVALID_PAK(pak_header)) goto error;
 
-    // NOTE: Get the nunber of files in the .PAK and allocated enough space for them.
+    // NOTE: Get the nunber of files in the .PAK and allocate enough space for them.
     pak->num_files = pak_header.directory_length / sizeof(struct packfile_t);
     pak->pak_files = malloc(pak->num_files * sizeof(struct packfile_t));
 
@@ -112,32 +112,39 @@ com_load_pak(const char *path) {
     goto escape;
 
 error:
+    com_free(pak);
     printf("Error opening PAK file.\n");
 
 escape:
-    sys_fclose(pak->pack_handle);
+    if(pak) sys_fclose(pak->pack_handle);
     return pak;
+}
+
+// TODO: com or sys?
+void
+com_free(void *mem) {
+    free(mem);
+    mem = NULL;
 }
 
 void
 com_free_pak(struct pack_t *pak) {
-    free(pak->pak_files);
-    pak->pak_files = NULL;
-
-    free(pak);
-    pak = NULL;
+    com_free(pak->pak_files);
+    com_free(pak);
 }
 
 int
 main(__unused int argc, __unused const char *argv[]) {
     struct pack_t *pak0 = com_load_pak("data/PAK0.PAK");
 
-    for(i32 i = 0; i < pak0->num_files; i++) {
-        printf("file_%d: %s - position: %d - size: %d\n",
-            i, pak0->pak_files[i].file_name, pak0->pak_files[i].file_position, pak0->pak_files[i].file_length);
-    }
+    if(pak0) {
+        for(i32 i = 0; i < pak0->num_files; i++) {
+            printf("file_%d: %s - position: %d - size: %d\n",
+                i, pak0->pak_files[i].file_name, pak0->pak_files[i].file_position, pak0->pak_files[i].file_length);
+        }
 
-    com_free_pak(pak0);
+        com_free_pak(pak0);
+    }
 
 //     if(!host_init()) goto exit;
 //
