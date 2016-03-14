@@ -151,6 +151,7 @@ com_free_directory() {
         struct searchpaths_t *temp = node;
         node = node->next;
         sys_fclose(temp->pak->pack_handle);
+        com_free_pak(temp->pak);
         com_free(temp);
     }
 
