@@ -145,11 +145,9 @@ com_add_game_directory(const char *dir) {
 
 void
 com_free_directory() {
-    struct searchpaths_t *node = com_search_paths;
-
-    while(node != NULL) {
+    for(struct searchpaths_t *node = com_search_paths; node != NULL; node = node->next) {
         struct searchpaths_t *temp = node;
-        node = node->next;
+
         sys_fclose(temp->pak->pack_handle);
         com_free_pak(temp->pak);
         com_free(temp);
@@ -184,18 +182,11 @@ s_get_file(struct searchpaths_t *node, i32 index, i32 *length) {
 
 void *
 com_find_file(const char *path, i32 *length) {
-    if(!path) goto escape;
-
-    struct searchpaths_t *node = com_search_paths;
-
-    while(node != NULL) {
+    for(struct searchpaths_t *node = com_search_paths; node != NULL; node = node->next) {
         i32 index = s_find_file(path, node);
         if(index >= 0) return s_get_file(node, index, length);
-
-        node = node->next;
     }
 
-escape:
     return NULL;
 }
 
