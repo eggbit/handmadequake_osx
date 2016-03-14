@@ -36,7 +36,7 @@ struct searchpaths_t {
     struct searchpaths_t *next;
 };
 
-struct searchpaths_t *com_search_paths = NULL;
+static struct searchpaths_t *s_search_paths = NULL;
 
 void
 sys_timerinit(struct timer_t *t) {
@@ -88,8 +88,8 @@ sys_va(const char *format, ...) {
     return buffer;
 }
 
-struct pack_t *
-com_load_pak(const char *path) {
+static struct pack_t *
+s_load_pak(const char *path) {
     struct dpackheader_t pak_header;
 
     // NOTE: Allocate the structre we'll be returning.
@@ -129,20 +129,20 @@ com_add_game_directory(const char *dir) {
 
     for(i32 i = 0;; i++) {
         sprintf(buffer, "%s/PAK%d.PAK", dir, i);
-        pak = com_load_pak(buffer);
+        pak = s_load_pak(buffer);
 
         if(!pak) break;
 
         struct searchpaths_t *new = malloc(sizeof(struct searchpaths_t));
         new->pak = pak;
-        new->next = com_search_paths;
-        com_search_paths = new;
+        new->next = s_search_paths;
+        s_search_paths = new;
     }
 }
 
 void
 com_free_directory() {
-    for(struct searchpaths_t *node = com_search_paths; node != NULL; node = node->next) {
+    for(struct searchpaths_t *node = s_search_paths; node != NULL; node = node->next) {
         struct searchpaths_t *temp = node;
 
         sys_fclose(temp->pak->pack_handle);
@@ -151,7 +151,7 @@ com_free_directory() {
         com_free(temp);
     }
 
-    com_search_paths = NULL;
+    s_search_paths = NULL;
 }
 
 static i32
@@ -180,7 +180,7 @@ s_get_file(struct searchpaths_t *node, i32 index, i32 *length) {
 
 void *
 com_find_file(const char *path, i32 *length) {
-    for(struct searchpaths_t *node = com_search_paths; node != NULL; node = node->next) {
+    for(struct searchpaths_t *node = s_search_paths; node != NULL; node = node->next) {
         i32 index = s_find_file(path, node);
         if(index >= 0) return s_get_file(node, index, length);
     }
