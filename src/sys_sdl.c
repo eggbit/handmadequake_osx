@@ -34,6 +34,13 @@ struct pack_t {
     } *pak_files;
 };
 
+struct searchpaths_t {
+    struct pack_t *pak;
+    struct searchpaths_t *next;
+};
+
+struct searchpaths_t *com_search_paths = NULL;
+
 void
 sys_timerinit(struct timer_t *t) {
     t->seconds_per_tick = 1.0 / (double)SDL_GetPerformanceFrequency();
@@ -112,25 +119,100 @@ com_load_pak(const char *path) {
 
 error:
     com_free(pak);
-    printf("Error opening PAK file.\n");
+    printf("Error opening %s\n", path);
 
 escape:
-    if(pak) sys_fclose(pak->pack_handle);
     return pak;
+}
+
+void
+com_add_game_directory(const char *dir) {
+    char buffer[128];
+    struct pack_t *pak;
+
+    for(i32 i = 0;; i++) {
+        sprintf(buffer, "%s/PAK%d.PAK", dir, i);
+        pak = com_load_pak(buffer);
+
+        if(!pak) break;
+
+        struct searchpaths_t *new = malloc(sizeof(struct searchpaths_t));
+        new->pak = pak;
+        new->next = com_search_paths;
+        com_search_paths = new;
+    }
+}
+
+void
+com_free_directory() {
+    struct searchpaths_t *node = com_search_paths;
+
+    while(node != NULL) {
+        struct searchpaths_t *temp = node;
+        node = node->next;
+        sys_fclose(temp->pak->pack_handle);
+        com_free(temp);
+    }
+
+    com_search_paths = NULL;
+}
+
+static i32
+s_find_file(const char *path, struct searchpaths_t *node) {
+    for(i32 i = 0; i < node->pak->num_files; i++) {
+        if(!q_strcmp(path, node->pak->pak_files[i].file_name)) return i;
+    }
+
+    return -1;
+}
+
+static void *
+s_get_file(struct searchpaths_t *node, i32 index, i32 *length) {
+    i32 pak_handle = node->pak->pack_handle;
+    i32 file_length = node->pak->pak_files[index].file_length;
+
+    void *data = malloc(file_length);
+
+    sys_fseek(pak_handle, node->pak->pak_files[index].file_position);
+    i32 bytes_read = sys_fread(pak_handle, data, file_length);
+
+    if(length) *length = bytes_read;
+
+    return data;
+}
+
+void *
+com_find_file(const char *path, i32 *length) {
+    if(!path) goto escape;
+
+    struct searchpaths_t *node = com_search_paths;
+
+    while(node != NULL) {
+        i32 index = s_find_file(path, node);
+        if(index >= 0) return s_get_file(node, index, length);
+
+        node = node->next;
+    }
+
+escape:
+    return NULL;
 }
 
 int
 main(__unused int argc, __unused const char *argv[]) {
-    struct pack_t *pak0 = com_load_pak("data/PAK0.PAK");
+    com_add_game_directory("data");
 
-    if(pak0) {
-        for(i32 i = 0; i < pak0->num_files; i++) {
-            printf("file_%d: %s - position: %d - size: %d\n",
-                i, pak0->pak_files[i].file_name, pak0->pak_files[i].file_position, pak0->pak_files[i].file_length);
-        }
+    i32 palette_length;
+    void *bytes = com_find_file("gfx/pause.lmp", &palette_length);
 
-        com_free_pak(pak0);
+    if(palette_length) {
+        FILE *output = fopen("data/out_pause.lmp", "wb");
+        fwrite(bytes, 1, palette_length, output);
+        fclose(output);
     }
+
+    com_free(bytes);
+    com_free_directory();
 
 //     if(!host_init()) goto exit;
 //
