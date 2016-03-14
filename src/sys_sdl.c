@@ -2,9 +2,6 @@
 // TODO: Proper error checking everywhere.
 
 #include "sys.h"
-#include <stdarg.h>
-
-#define VALID_PAK(p)  (p.magic[0] == 'P' && p.magic[1] == 'A' && p.magic[2] == 'C' && p.magic[3] == 'K')
 
 struct timer_t {
     double seconds_per_tick;
@@ -105,7 +102,7 @@ com_load_pak(const char *path) {
 
     // NOTE: Read the header and verify.
     sys_fread(pak->pack_handle, &pak_header, sizeof(pak_header));
-    if(!VALID_PAK(pak_header)) goto error;
+    if(strncmp(pak_header.magic, "PACK", 4) != 0) goto error;
 
     // NOTE: Get the nunber of files in the .PAK and allocate enough space for them.
     pak->num_files = pak_header.directory_length / sizeof(struct packfile_t);
@@ -149,7 +146,8 @@ com_free_directory() {
         struct searchpaths_t *temp = node;
 
         sys_fclose(temp->pak->pack_handle);
-        com_free_pak(temp->pak);
+        com_free(temp->pak->pak_files);
+        com_free(temp->pak);
         com_free(temp);
     }
 

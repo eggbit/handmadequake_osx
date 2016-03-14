@@ -21,10 +21,4 @@ const char *sys_va(const char *format, ...);
         }               \
     } while(0)
 
-#define com_free_pak(p)         \
-    do {                        \
-        com_free(p->pak_files); \
-        com_free(p);            \
-    } while(0)
-
 #endif // sys_h
