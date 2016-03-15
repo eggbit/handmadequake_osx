@@ -12,5 +12,16 @@ void q_strncpy(char *dest, const char *src, i32 count);
 
 // common functions
 const char *com_check_parm(const char *search_arg, u32 num_args, const char *args[]);
+void com_add_game_directory(const char *dir);
+void com_free_directory();
+void *com_find_file(const char *path, i32 *length);
+
+#define com_free(p)     \
+    do {                \
+        if(p) {         \
+            free(p);    \
+            p = NULL;   \
+        }               \
+    } while(0)
 
 #endif /* common_h */

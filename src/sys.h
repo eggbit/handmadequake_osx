@@ -13,12 +13,4 @@ const char *sys_va(const char *format, ...);
 #define sdl_event_exists(sdl_event, e_type) \
     SDL_PeepEvents(sdl_event, 1, SDL_GETEVENT, e_type, e_type)
 
-#define com_free(p)     \
-    do {                \
-        if(p) {         \
-            free(p);    \
-            p = NULL;   \
-        }               \
-    } while(0)
-
 #endif // sys_h

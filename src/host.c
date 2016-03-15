@@ -26,6 +26,7 @@ host_filter_time(double time) {
 
 bool
 host_init() {
+    com_add_game_directory("data");
     SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_TIMER);
     return vid_init();
 }
@@ -42,6 +43,7 @@ host_frame(double timestep) {
 
 void
 host_shutdown() {
+    com_free_directory();
     vid_shutdown();
     SDL_Quit();
 }
