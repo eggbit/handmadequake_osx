@@ -28,37 +28,40 @@ static struct lmpdata_t s_pausedata = { 0 };
 static SDL_Window *s_window = NULL;
 static SDL_Renderer *s_renderer = NULL;
 static SDL_Surface *s_worksurface = NULL;   // NOTE: Holds pixel data we'll directly modify.
-static SDL_Texture *s_outtexture = NULL; // NOTE: Holds the final pixel data that'll be displayed.
+static SDL_Texture *s_outtexture = NULL;    // NOTE: Holds the final pixel data that'll be displayed.
 static SDL_Palette *s_palette = NULL;
 
 static void
-s_readlmp(struct lmpdata_t *lmp, const char *path) {
-    i32 bytes_read;
-    i32 *data = com_find_file(path, &bytes_read);
+s_readlmp(struct lmpdata_t *lmp, const char *path, bool palette) {
+    i32 bytes_read = 0, int_offset = 0;
+    u32 *data = com_find_file(path, &bytes_read);
 
     if(bytes_read) {
+        if(palette) goto load;
+
         lmp->width = data[0];
         lmp->height = data[1];
-
-        printf("%s: width = %d, height = %d\n", path, lmp->width, lmp->height);
-
-        if(lmp->width > 1024 || lmp->height > 1024) {
-            lmp->data = malloc(256 * 3);
-            memcpy(lmp->data, data, bytes_read);
-        }
-        else {
-            lmp->data = malloc(lmp->width * lmp->height);
-            memcpy(lmp->data, data + 2, lmp->width * lmp->height);
-        }
+        int_offset = 2;
+        bytes_read -= 8;
     }
+    else return;
+
+load:
+    lmp->data = malloc(bytes_read);
+    memcpy(lmp->data, data + int_offset, bytes_read);
 
     free(data);
 }
 
 static void
+s_loadimage(struct lmpdata_t *lmp, const char *path) {
+    s_readlmp(lmp, path, false);
+}
+
+static void
 s_loadpalette(const char *palette_path) {
     struct lmpdata_t palette = {0};
-    s_readlmp(&palette, palette_path);
+    s_readlmp(&palette, palette_path, true);
 
     if(palette.data) {
         s_palette = SDL_AllocPalette(256);
@@ -80,8 +83,7 @@ s_loadpalette(const char *palette_path) {
 // NOTE: DRAW_LMP and DRAW_RECT are based on this function
 static void
 s_drawraw(i32 x, i32 y, i32 width, i32 height, u32 color, struct lmpdata_t *lmp) {
-    u8 bpp = s_worksurface->format->BytesPerPixel;
-    u8 *dest = s_worksurface->pixels;
+    u32 *dest = s_worksurface->pixels;
     u8 *source = lmp ? lmp->data : NULL;
 
     // NOTE: Bounds checking
@@ -94,25 +96,17 @@ s_drawraw(i32 x, i32 y, i32 width, i32 height, u32 color, struct lmpdata_t *lmp)
         width = lmp->width;
     }
 
-    // NOTE: First pixel position.
-    dest += (s_worksurface->w * bpp * y) + (x * bpp);
-
-    u32 *buffer_walker = (u32 *)dest;
+    // NOTE: Starting pixel position.
+    dest += (y * s_worksurface->w + x);
 
     for(i32 y = 0; y < height; y++) {
         for(i32 x = 0; x < width; x++) {
-            if(color) *buffer_walker = color;
             if(source) {
-                SDL_Color c = s_palette->colors[*source];
-                *buffer_walker = (c.r << 16) | (c.g << 8) | c.b;
+                color = (s_palette->colors[*source].r << 16) | (s_palette->colors[*source].g << 8) | s_palette->colors[*source].b;
                 source++;
             }
-
-            buffer_walker++;
+            dest[y * s_worksurface->w + x] = color;
         }
-
-        dest += s_worksurface->w * bpp;
-        buffer_walker = (u32 *)dest;
     }
 }
 
@@ -181,8 +175,8 @@ vid_setmode(const char *title, i32 mode) {
 
     // TODO: Error checking.
     s_loadpalette("gfx/palette.lmp");
-    s_readlmp(&s_discdata, "gfx/qplaque.lmp");
-    s_readlmp(&s_pausedata, "gfx/pause.lmp");
+    s_loadimage(&s_discdata, "gfx/qplaque.lmp");
+    s_loadimage(&s_pausedata, "gfx/pause.lmp");
 
     return true;
 }

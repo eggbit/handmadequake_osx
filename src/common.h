@@ -16,4 +16,12 @@ void com_add_game_directory(const char *dir);
 void com_free_directory();
 void *com_find_file(const char *path, i32 *length);
 
+#define com_free(p)     \
+    do {                \
+        if(p) {         \
+            free(p);    \
+            p = NULL;   \
+        }               \
+    } while(0)
+
 #endif /* common_h */
