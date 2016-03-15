@@ -9,17 +9,17 @@ struct lmpdata_t {
 };
 
 struct vmode_t {
-    bool fullscreen;
     i32 width;
     i32 height;
+    bool fullscreen;
 };
 
 // NOTE: Fullscreen modes will be added to this array via vid_init_fullscreen_mode function.
 static struct vmode_t sl_mode_list[MAX_MODES] = {
-    { false, 320, 240 },
-    { false, 640, 480 },
-    { false, 800, 600 },
-    { false, 1024, 768 }
+    { 320, 240, false },
+    { 640, 480, false },
+    { 800, 600, false },
+    { 1024, 768, false }
 };
 
 static struct lmpdata_t s_discdata = { 0 };
@@ -31,57 +31,50 @@ static SDL_Surface *s_worksurface = NULL;   // NOTE: Holds pixel data we'll dire
 static SDL_Texture *s_outtexture = NULL; // NOTE: Holds the final pixel data that'll be displayed.
 static SDL_Palette *s_palette = NULL;
 
-static size_t
-s_readlmp(struct lmpdata_t *lmp, const char *file_path) {
-    i32 file, bytes_read;
+static void
+s_readlmp(struct lmpdata_t *lmp, const char *path) {
+    i32 bytes_read;
+    i32 *data = com_find_file(path, &bytes_read);
 
-    file = sys_fopen_rb(file_path, &bytes_read);
-    if(file < 0) goto escape;
+    if(bytes_read) {
+        lmp->width = data[0];
+        lmp->height = data[1];
 
-    sys_fread(file, &lmp->width, sizeof(lmp->width));
-    sys_fread(file, &lmp->height, sizeof(lmp->height));
+        printf("%s: width = %d, height = %d\n", path, lmp->width, lmp->height);
 
-    printf("width = %d, height = %d\n", lmp->width, lmp->height);
-
-    // NOTE: If width or height are unreasonable, assume it's a 256-color palette.
-    if(lmp->width > 1024 || lmp->height > 1024) {
-        sys_frewind(file);
-        lmp->data = malloc(256 * 3);
-        bytes_read = sys_fread(file, lmp->data, 256 * 3);
-    }
-    else {
-        lmp->data = malloc(lmp->width * lmp->height);
-        bytes_read = sys_fread(file, lmp->data, lmp->width * lmp->height);
+        if(lmp->width > 1024 || lmp->height > 1024) {
+            lmp->data = malloc(256 * 3);
+            memcpy(lmp->data, data, bytes_read);
+        }
+        else {
+            lmp->data = malloc(lmp->width * lmp->height);
+            memcpy(lmp->data, data + 2, lmp->width * lmp->height);
+        }
     }
 
-escape:
-    sys_fclose(file);
-    return bytes_read;
+    free(data);
 }
 
-static size_t
+static void
 s_loadpalette(const char *palette_path) {
     struct lmpdata_t palette = {0};
-    size_t bytes_read = s_readlmp(&palette, palette_path);
+    s_readlmp(&palette, palette_path);
 
-    if(!bytes_read) goto escape;
+    if(palette.data) {
+        s_palette = SDL_AllocPalette(256);
 
-    s_palette = SDL_AllocPalette(256);
+        SDL_Color c[255];
+        u8 *p_data = palette.data;
 
-    SDL_Color c[255];
-    u8 *p_data = palette.data;
+        for(u8 i = 0; i < 255; i++) {
+            c[i].r = *p_data++;
+            c[i].g = *p_data++;
+            c[i].b = *p_data++;
+        }
 
-    for(u8 i = 0; i < 255; i++) {
-        c[i].r = *p_data++;
-        c[i].g = *p_data++;
-        c[i].b = *p_data++;
+        SDL_SetPaletteColors(s_palette, c, 0, 256);
+        com_free(palette.data);
     }
-
-    SDL_SetPaletteColors(s_palette, c, 0, 256);
-
-escape:
-    com_free(palette.data);
-    return bytes_read;
 }
 
 // NOTE: DRAW_LMP and DRAW_RECT are based on this function
@@ -187,9 +180,9 @@ vid_setmode(const char *title, i32 mode) {
     s_outtexture = SDL_CreateTexture(s_renderer, SDL_PIXELFORMAT_RGB888, SDL_TEXTUREACCESS_STREAMING, 320, 240);
 
     // TODO: Error checking.
-    s_loadpalette("data/palette.lmp");
-    s_readlmp(&s_discdata, "data/DISC.lmp");
-    s_readlmp(&s_pausedata, "data/pause.lmp");
+    s_loadpalette("gfx/palette.lmp");
+    s_readlmp(&s_discdata, "gfx/qplaque.lmp");
+    s_readlmp(&s_pausedata, "gfx/pause.lmp");
 
     return true;
 }
