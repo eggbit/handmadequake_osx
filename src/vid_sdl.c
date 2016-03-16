@@ -145,6 +145,7 @@ vid_init_fullscreen_mode(void) {
 
 bool
 vid_init(void) {
+    SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_TIMER);
     vid_init_fullscreen_mode();
 
     // NOTE: Print out all modes
@@ -220,6 +221,7 @@ vid_shutdown(void) {
     SDL_DestroyTexture(s_outtexture);
     SDL_DestroyRenderer(s_renderer);
     SDL_DestroyWindow(s_window);
+    SDL_Quit();
 }
 
 void

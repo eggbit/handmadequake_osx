@@ -188,7 +188,7 @@ escape:
     return pak;
 }
 
-void
+static void
 com_add_game_directory(const char *dir) {
     char buffer[128];
     struct pack_t *pak;
@@ -207,7 +207,12 @@ com_add_game_directory(const char *dir) {
 }
 
 void
-com_free_directory() {
+com_file_init(void) {
+    com_add_game_directory("data");
+}
+
+void
+com_file_shutdown(void) {
     for(struct searchpaths_t *node = s_search_paths; node != NULL; node = node->next) {
         struct searchpaths_t *temp = node;
 
