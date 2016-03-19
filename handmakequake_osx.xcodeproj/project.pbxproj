@@ -8,7 +8,6 @@
 
 /* Begin PBXBuildFile section */
 		E09DFBD71C4941CA0010D72F /* main.c in Sources */ = {isa = PBXBuildFile; fileRef = E09DFBD61C4941CA0010D72F /* main.c */; };
-		E0A77B1F1C8DE6A700FEBD12 /* file.c in Sources */ = {isa = PBXBuildFile; fileRef = E0A77B1D1C8DE6A700FEBD12 /* file.c */; };
 		E0B7CD391C494381004983EE /* common.c in Sources */ = {isa = PBXBuildFile; fileRef = E0F5A8361C48200E0000FA62 /* common.c */; };
 		E0C231F11C765C8900CD3039 /* host.c in Sources */ = {isa = PBXBuildFile; fileRef = E0C231EF1C765C8900CD3039 /* host.c */; };
 		E0C231F61C7B8ED400CD3039 /* sys_sdl.c in Sources */ = {isa = PBXBuildFile; fileRef = E0C231F31C7B8ED400CD3039 /* sys_sdl.c */; };
@@ -42,8 +41,6 @@
 		E037D0FB1C4827A1003D352A /* quakedef.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = quakedef.h; sourceTree = "<group>"; };
 		E09DFBD41C4941CA0010D72F /* test */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = test; sourceTree = BUILT_PRODUCTS_DIR; };
 		E09DFBD61C4941CA0010D72F /* main.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = main.c; sourceTree = "<group>"; };
-		E0A77B1D1C8DE6A700FEBD12 /* file.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = file.c; sourceTree = "<group>"; };
-		E0A77B1E1C8DE6A700FEBD12 /* file.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = file.h; sourceTree = "<group>"; };
 		E0B7CD381C494359004983EE /* greatest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = greatest.h; sourceTree = "<group>"; };
 		E0C231EF1C765C8900CD3039 /* host.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = host.c; sourceTree = "<group>"; };
 		E0C231F01C765C8900CD3039 /* host.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = host.h; sourceTree = "<group>"; };
@@ -94,8 +91,6 @@
 		E0365A571C387D67005EAD9C /* src */ = {
 			isa = PBXGroup;
 			children = (
-				E0A77B1D1C8DE6A700FEBD12 /* file.c */,
-				E0A77B1E1C8DE6A700FEBD12 /* file.h */,
 				E0C231F21C7B8ED400CD3039 /* sys.h */,
 				E0C231F31C7B8ED400CD3039 /* sys_sdl.c */,
 				E0C231F41C7B8ED400CD3039 /* vid_sdl.c */,
@@ -195,7 +190,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				E0A77B1F1C8DE6A700FEBD12 /* file.c in Sources */,
 				E0F5A8381C48200E0000FA62 /* common.c in Sources */,
 				E0C231F61C7B8ED400CD3039 /* sys_sdl.c in Sources */,
 				E0C231F11C765C8900CD3039 /* host.c in Sources */,

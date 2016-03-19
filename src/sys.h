@@ -18,7 +18,4 @@ i32 sys_fwrite(i32 handle, void *source, i32 count);
 #define print_dec(d) \
     printf("%s: %d\n", #d, d)
 
-#define sdl_event_exists(sdl_event, e_type) \
-    SDL_PeepEvents(sdl_event, 1, SDL_GETEVENT, e_type, e_type)
-
 #endif // sys_h

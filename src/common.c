@@ -155,7 +155,7 @@ com_check_parm(const char *search_arg, u32 num_args, const char *args[]) {
 }
 
 static struct pack_t *
-s_load_pak(const char *path) {
+lk_load_pak(const char *path) {
     struct dpackheader_t pak_header;
 
     // NOTE: Allocate the structre we'll be returning.
@@ -189,13 +189,13 @@ escape:
 }
 
 static void
-com_add_game_directory(const char *dir) {
+lk_add_game_directory(const char *dir) {
     char buffer[128];
     struct pack_t *pak;
 
     for(i32 i = 0;; i++) {
         sprintf(buffer, "%s/PAK%d.PAK", dir, i);
-        pak = s_load_pak(buffer);
+        pak = lk_load_pak(buffer);
 
         if(!pak) break;
 
@@ -208,7 +208,7 @@ com_add_game_directory(const char *dir) {
 
 void
 com_file_init(void) {
-    com_add_game_directory("data");
+    lk_add_game_directory("data");
 }
 
 void
@@ -226,7 +226,7 @@ com_file_shutdown(void) {
 }
 
 static i32
-s_find_file(const char *path, struct searchpaths_t *node) {
+lk_find_file(const char *path, struct searchpaths_t *node) {
     for(i32 i = 0; i < node->pak->num_files; i++) {
         if(!q_strcmp(path, node->pak->pak_files[i].file_name)) return i;
     }
@@ -235,7 +235,7 @@ s_find_file(const char *path, struct searchpaths_t *node) {
 }
 
 static void *
-s_get_file(struct searchpaths_t *node, i32 index, i32 *length) {
+lk_get_file(struct searchpaths_t *node, i32 index, i32 *length) {
     i32 pak_handle = node->pak->pack_handle;
     i32 file_length = node->pak->pak_files[index].file_length;
 
@@ -252,8 +252,8 @@ s_get_file(struct searchpaths_t *node, i32 index, i32 *length) {
 void *
 com_find_file(const char *path, i32 *length) {
     for(struct searchpaths_t *node = s_search_paths; node != NULL; node = node->next) {
-        i32 index = s_find_file(path, node);
-        if(index >= 0) return s_get_file(node, index, length);
+        i32 index = lk_find_file(path, node);
+        if(index >= 0) return lk_get_file(node, index, length);
     }
 
     return NULL;

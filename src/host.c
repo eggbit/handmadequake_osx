@@ -44,4 +44,5 @@ void
 host_shutdown() {
     com_file_shutdown();
     vid_shutdown();
+    SDL_Quit();
 }
