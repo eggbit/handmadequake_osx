@@ -2,12 +2,6 @@
 
 #define MAX_MODES 30
 
-struct lmpdata_t {
-    i32 width;
-    i32 height;
-    void *data;
-};
-
 struct vmode_t {
     i32 width;
     i32 height;
@@ -29,96 +23,6 @@ static SDL_Window *lk_window = NULL;
 static SDL_Renderer *lk_renderer = NULL;
 static SDL_Surface *lk_worksurface = NULL;   // NOTE: Holds pixel data we'll directly modify.
 static SDL_Texture *lk_texture = NULL;    // NOTE: Holds the final pixel data that'll be displayed.
-static SDL_Palette *lk_palette = NULL;
-
-static void
-lk_readlmp(struct lmpdata_t *lmp, const char *path, bool palette) {
-    i32 bytes_read = 0, int_offset = 0;
-    u32 *data = com_find_file(path, &bytes_read);
-
-    if(bytes_read) {
-        if(palette) goto load;
-
-        lmp->width = data[0];
-        lmp->height = data[1];
-        int_offset = 2;
-        bytes_read -= 8;
-    }
-    else return;
-
-load:
-    lmp->data = malloc(bytes_read);
-    memcpy(lmp->data, data + int_offset, bytes_read);
-
-    free(data);
-}
-
-static void
-lk_loadimage(struct lmpdata_t *lmp, const char *path) {
-    lk_readlmp(lmp, path, false);
-}
-
-static void
-lk_loadpalette(const char *palette_path) {
-    struct lmpdata_t palette = {0};
-    lk_readlmp(&palette, palette_path, true);
-
-    if(palette.data) {
-        lk_palette = SDL_AllocPalette(256);
-
-        SDL_Color c[255];
-        u8 *p_data = palette.data;
-
-        for(u8 i = 0; i < 255; i++) {
-            c[i].r = *p_data++;
-            c[i].g = *p_data++;
-            c[i].b = *p_data++;
-        }
-
-        SDL_SetPaletteColors(lk_palette, c, 0, 256);
-        com_free(palette.data);
-    }
-}
-
-// NOTE: DRAW_LMP and DRAW_RECT are based on this function
-static void
-s_drawraw(i32 x, i32 y, i32 width, i32 height, u32 color, struct lmpdata_t *lmp) {
-    u32 *dest = lk_worksurface->pixels;
-    u8 *source = lmp ? lmp->data : NULL;
-
-    // NOTE: Bounds checking
-    if(height && width) {
-        if((x + width) > lk_worksurface->w) width = lk_worksurface->w - x;
-        if((y + height) > lk_worksurface->h) height = lk_worksurface->h - y;
-    }
-    else {
-        height = lmp->height;
-        width = lmp->width;
-    }
-
-    // NOTE: Starting pixel position.
-    dest += (y * lk_worksurface->w + x);
-
-    for(i32 y = 0; y < height; y++) {
-        for(i32 x = 0; x < width; x++) {
-            if(source) {
-                color = (lk_palette->colors[*source].r << 16) | (lk_palette->colors[*source].g << 8) | lk_palette->colors[*source].b;
-                source++;
-            }
-            dest[y * lk_worksurface->w + x] = color;
-        }
-    }
-}
-
-static void
-lk_drawlmp(i32 x, i32 y, struct lmpdata_t *lmp) {
-    s_drawraw(x, y, 0, 0, 0, lmp);
-}
-
-static void
-lk_drawrect(i32 x, i32 y, i32 w, i32 h, i32 color) {
-    s_drawraw(x, y, w, h, color, NULL);
-}
 
 void
 vid_init_fullscreen_mode(void) {
@@ -152,7 +56,7 @@ vid_init(void) {
     for(u32 i = 0; i < MAX_MODES; i++)
         printf("width: %d - height: %d - fullscreen: %s\n", lk_mode_list[i].width, lk_mode_list[i].height, lk_mode_list[i].fullscreen ? "true" : "false");
 
-    return vid_setmode("Handmade Quake OSX", 1);
+    return vid_setmode("Handmade Quake OSX", 3);
 }
 
 bool
@@ -175,18 +79,18 @@ vid_setmode(const char *title, i32 mode) {
     lk_texture = SDL_CreateTexture(lk_renderer, SDL_PIXELFORMAT_RGB888, SDL_TEXTUREACCESS_STREAMING, 320, 240);
 
     // TODO: Error checking.
-    lk_loadpalette("gfx/palette.lmp");
-    lk_loadimage(&lk_discdata, "gfx/qplaque.lmp");
-    lk_loadimage(&lk_pausedata, "gfx/pause.lmp");
+    draw_load_palette();
+    draw_load_image(&lk_discdata, "gfx/qplaque.lmp");
+    draw_load_image(&lk_pausedata, "gfx/menuplyr.lmp");
 
     return true;
 }
 
 bool
 vid_draw(void) {
-    lk_drawrect(0, 0, lk_worksurface->w, lk_worksurface->h, SDL_MapRGB(lk_worksurface->format, 100, 100, 0));
-    lk_drawlmp(20, 20, &lk_pausedata);
-    lk_drawlmp(20, 60, &lk_discdata);
+    draw_rect(lk_worksurface, 0, 0, lk_worksurface->w, lk_worksurface->h, SDL_MapRGB(lk_worksurface->format, 100, 100, 50));
+    draw_pic(lk_worksurface, 100, 20, &lk_pausedata);
+    draw_pic(lk_worksurface, 20, 60, &lk_discdata);
 
     return true;
 }
@@ -216,7 +120,7 @@ void
 vid_shutdown(void) {
     com_free(lk_discdata.data);
     com_free(lk_pausedata.data);
-    SDL_FreePalette(lk_palette);
+    draw_free_palette();
     SDL_FreeSurface(lk_worksurface);
     SDL_DestroyTexture(lk_texture);
     SDL_DestroyRenderer(lk_renderer);
