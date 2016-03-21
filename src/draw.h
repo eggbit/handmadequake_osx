@@ -6,7 +6,7 @@
 struct lmpdata_t {
     i32 width;
     i32 height;
-    void *data;
+    u8 *data;
 };
 
 void draw_rect(SDL_Surface *s, i32 x, i32 y, i32 w, i32 h, i32 color);

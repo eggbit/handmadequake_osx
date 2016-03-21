@@ -4,40 +4,6 @@
 
 static SDL_Palette *lk_palette = NULL;
 
-static void
-lk_draw_raw(SDL_Surface *s, i32 x, i32 y, i32 width, i32 height, i32 color, struct lmpdata_t *lmp) {
-    u32 *dest = s->pixels;
-    u8 *source = lmp ? lmp->data : NULL;
-
-    // NOTE: Bounds checking
-    if(height && width) {
-        if((x + width) > s->w) width = s->w - x;
-        if((y + height) > s->h) height = s->h - y;
-    }
-    else {
-        height = lmp->height;
-        width = lmp->width;
-    }
-
-    // NOTE: Starting pixel position.
-    dest += (y * s->w + x);
-
-    for(i32 y = 0; y < height; y++) {
-        for(i32 x = 0; x < width; x++) {
-            if(source) {
-                if(*source != 0xff) {
-                    color = (lk_palette->colors[*source].r << 16) | (lk_palette->colors[*source].g << 8) | lk_palette->colors[*source].b;
-                    dest[y * s->w + x] = color;
-                }
-
-                source++;
-            }
-            else
-                dest[y * s->w + x] = color;
-        }
-    }
-}
-
 void
 draw_load_palette(void) {
     u8 *data = com_find_file("gfx/palette.lmp", NULL);
@@ -45,7 +11,7 @@ draw_load_palette(void) {
     if(data) {
         lk_palette = SDL_AllocPalette(256);
 
-        SDL_Color c[255];
+        SDL_Color c[256];
         u8 *p_data = data;
 
         for(u8 i = 0; i < 255; i++) {
@@ -76,12 +42,37 @@ draw_load_image(struct lmpdata_t *lmp, const char *path) {
 
 void
 draw_pic(SDL_Surface *s, i32 x, i32 y, struct lmpdata_t *lmp) {
-    lk_draw_raw(s, x, y, 0, 0, 0, lmp);
+    u32 *dest = s->pixels;
+    dest += (y * s->w + x); // NOTE: Starting pixel position.
+
+    u8 *source = lmp->data;
+
+    for(i32 y = 0; y < lmp->height; y++) {
+        for(i32 x = 0; x < lmp->width; x++) {
+            if(*source != 0xff) {
+                u32 color = (lk_palette->colors[*source].r << 16) | (lk_palette->colors[*source].g << 8) | lk_palette->colors[*source].b;
+                dest[y * s->w + x] = color;
+            }
+
+            source++;
+        }
+    }
 }
 
 void
-draw_rect(SDL_Surface *s, i32 x, i32 y, i32 w, i32 h, i32 color) {
-    lk_draw_raw(s, x, y, w, h, color, NULL);
+draw_rect(SDL_Surface *s, i32 x, i32 y, i32 width, i32 height, i32 color) {
+    u32 *dest = s->pixels;
+    dest += (y * s->w + x); // NOTE: Starting pixel position.
+
+    // NOTE: Bounds checking
+    if((x + width) > s->w) width = s->w - x;
+    if((y + height) > s->h) height = s->h - y;
+
+    for(i32 y = 0; y < height; y++) {
+        for(i32 x = 0; x < width; x++) {
+            dest[y * s->w + x] = color;
+        }
+    }
 }
 
 void
