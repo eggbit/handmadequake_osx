@@ -5,28 +5,6 @@
 static SDL_Palette *lk_palette = NULL;
 
 static void
-lk_readlmp(struct lmpdata_t *lmp, const char *path, bool palette) {
-    i32 bytes_read = 0, int_offset = 0;
-    u32 *data = com_find_file(path, &bytes_read);
-
-    if(bytes_read) {
-        if(palette) goto load;
-
-        lmp->width = data[0];
-        lmp->height = data[1];
-        int_offset = 2;
-        bytes_read -= 8;
-    }
-    else return;
-
-load:
-    lmp->data = malloc(bytes_read);
-    memcpy(lmp->data, data + int_offset, bytes_read);
-
-    free(data);
-}
-
-static void
 lk_draw_raw(SDL_Surface *s, i32 x, i32 y, i32 width, i32 height, i32 color, struct lmpdata_t *lmp) {
     u32 *dest = s->pixels;
     u8 *source = lmp ? lmp->data : NULL;
@@ -61,11 +39,6 @@ lk_draw_raw(SDL_Surface *s, i32 x, i32 y, i32 width, i32 height, i32 color, stru
 }
 
 void
-draw_load_image(struct lmpdata_t *lmp, const char *path) {
-    lk_readlmp(lmp, path, false);
-}
-
-void
 draw_load_palette(void) {
     u8 *data = com_find_file("gfx/palette.lmp", NULL);
 
@@ -83,6 +56,21 @@ draw_load_palette(void) {
 
         SDL_SetPaletteColors(lk_palette, c, 0, 256);
         com_free(data);
+    }
+}
+
+void
+draw_load_image(struct lmpdata_t *lmp, const char *path) {
+    i32 bytes_read = 0;
+    u32 *data = com_find_file(path, &bytes_read);
+
+    if(bytes_read) {
+        lmp->width = data[0];
+        lmp->height = data[1];
+        lmp->data = malloc(bytes_read);
+
+        memcpy(lmp->data, data + 2, bytes_read - 8);
+        free(data);
     }
 }
 
