@@ -21,7 +21,7 @@ static struct lmpdata_t lk_pausedata = { 0 };
 
 static SDL_Window *lk_window = NULL;
 static SDL_Renderer *lk_renderer = NULL;
-static SDL_Surface *lk_worksurface = NULL;   // NOTE: Holds pixel data we'll directly modify.
+static SDL_Surface *lk_surface = NULL;   // NOTE: Holds pixel data we'll directly modify.
 static SDL_Texture *lk_texture = NULL;    // NOTE: Holds the final pixel data that'll be displayed.
 
 void
@@ -75,7 +75,7 @@ vid_setmode(const char *title, i32 mode) {
     if(fullscreen_flag) SDL_RenderSetLogicalSize(lk_renderer, 320, 240);
 
     // NOTE: Create surfaces and output texture.
-    lk_worksurface = SDL_CreateRGBSurface(0, 320, 240, 32, 0, 0, 0, 0);
+    lk_surface = SDL_CreateRGBSurface(0, 320, 240, 32, 0, 0, 0, 0);
     lk_texture = SDL_CreateTexture(lk_renderer, SDL_PIXELFORMAT_RGB888, SDL_TEXTUREACCESS_STREAMING, 320, 240);
 
     // TODO: Error checking.
@@ -88,9 +88,9 @@ vid_setmode(const char *title, i32 mode) {
 
 bool
 vid_draw(void) {
-    draw_rect(lk_worksurface, 0, 0, lk_worksurface->w, lk_worksurface->h, SDL_MapRGB(lk_worksurface->format, 100, 100, 50));
-    draw_pic(lk_worksurface, 100, 20, &lk_pausedata);
-    draw_pic(lk_worksurface, 20, 60, &lk_discdata);
+    draw_rect(lk_surface, 0, 0, lk_surface->w, lk_surface->h, SDL_MapRGB(lk_surface->format, 100, 100, 50));
+    draw_pic(lk_surface, 100, 20, &lk_pausedata);
+    draw_pic(lk_surface, 20, 60, &lk_discdata);
 
     return true;
 }
@@ -105,7 +105,7 @@ vid_update(void) {
 
     // NOTE: Copy s_worksurface pixels to s_texture's pixel buffer.
     SDL_LockTexture(lk_texture, NULL, &output_buffer, &pitch);
-    memcpy(output_buffer, lk_worksurface->pixels, lk_worksurface->pitch * lk_worksurface->h);
+    memcpy(output_buffer, lk_surface->pixels, lk_surface->pitch * lk_surface->h);
     SDL_UnlockTexture(lk_texture);
 
     // NOTE: Output the texture to the screen. SDL_RenderCopy will scale the texture up.
@@ -121,7 +121,7 @@ vid_shutdown(void) {
     com_free(lk_discdata.data);
     com_free(lk_pausedata.data);
     draw_free_palette();
-    SDL_FreeSurface(lk_worksurface);
+    SDL_FreeSurface(lk_surface);
     SDL_DestroyTexture(lk_texture);
     SDL_DestroyRenderer(lk_renderer);
     SDL_DestroyWindow(lk_window);

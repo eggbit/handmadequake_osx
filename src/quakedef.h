@@ -1,6 +1,10 @@
 #ifndef quakedef_h
 #define quakedef_h
 
+#ifndef __unused
+#define __unused __attribute__((unused))
+#endif
+
 #include <stdio.h>
 #include <stdint.h>
 #include <stdlib.h>

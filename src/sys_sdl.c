@@ -63,7 +63,7 @@ lk_gethandle(void) {
         if(!lk_fhandles[i]) return i;
     }
 
-    return -1;
+    return -1;  // NOTE: This is just to quiet the compiler.
 }
 
 static i32
@@ -80,18 +80,15 @@ lk_flength(FILE *f) {
 static i32
 lk_fopen(const char *path, const char *mode, i32 *size) {
     i32 handle_index = lk_gethandle();
-    if(handle_index < 0) goto error;
-
     FILE *f = fopen(path, mode);
-    if(!f) goto error;
+
+    if(!f) {
+        handle_index = -1;
+        goto escape;
+    }
 
     lk_fhandles[handle_index] = f;
-
     if(size) *size = lk_flength(f);
-    goto escape;
-
-error:
-    handle_index = -1;
 
 escape:
     return handle_index;
@@ -156,20 +153,6 @@ sys_va(const char *format, ...) {
 
 int
 main(__unused int argc, __unused const char *argv[]) {
-    // com_add_game_directory("data");
-    //
-    // i32 palette_length;
-    // void *bytes = com_find_file("gfx/pause.lmp", &palette_length);
-    //
-    // if(palette_length) {
-    //     FILE *output = fopen("data/out_pause.lmp", "wb");
-    //     fwrite(bytes, 1, palette_length, output);
-    //     fclose(output);
-    // }
-    //
-    // com_free(bytes);
-    // com_free_directory();
-
     if(!host_init()) goto exit;
 
     struct timer_t timer;

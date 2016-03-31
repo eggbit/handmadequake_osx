@@ -1,7 +1,5 @@
 #include "draw.h"
 
-// TODO: Clean up this entire module.
-
 static SDL_Palette *lk_palette = NULL;
 
 void
@@ -48,13 +46,11 @@ draw_pic(SDL_Surface *s, i32 x, i32 y, struct lmpdata_t *lmp) {
     u8 *source = lmp->data;
 
     for(i32 y = 0; y < lmp->height; y++) {
-        for(i32 x = 0; x < lmp->width; x++) {
+        for(i32 x = 0; x < lmp->width; source++, x++) {
             if(*source != 0xff) {
                 u32 color = (lk_palette->colors[*source].r << 16) | (lk_palette->colors[*source].g << 8) | lk_palette->colors[*source].b;
                 dest[y * s->w + x] = color;
             }
-
-            source++;
         }
     }
 }
