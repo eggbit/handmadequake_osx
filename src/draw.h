@@ -3,6 +3,8 @@
 
 #include "quakedef.h"
 
+// TODO: Entire LMP loading routine to work together with WADs.
+
 struct lmpdata_t {
     i32 width;
     i32 height;

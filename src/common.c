@@ -1,5 +1,7 @@
 #include "common.h"
 
+// TODO: Move PAK loading to it's own module.
+
 // NOTE: .PAK header
 struct dpackheader_t {
     char magic[4];
