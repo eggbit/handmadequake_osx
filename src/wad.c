@@ -22,37 +22,39 @@ static u8 *lk_wad;
 static u32 lk_num_lumps;
 static struct wadentry_t *lk_lumps;
 
-// IDEA: Return a new string?
 static void
-lk_clean_name(char *name) {
+lk_clean_name(const char *in, char *out) {
     for(i32 i = 0; i < 16; i++) {
-        char c = name[i];
+        char c = in[i];
 
         if(!c) {
             for(i32 x = i; x < 16; x++)
-                name[i] = 0;
+                out[i] = 0;
 
             break;
         }
 
         // NOTE: Capital to lower case.
-        if(c >= 'A' && c <= 'Z') {
+        if(c >= 'A' && c <= 'Z')
             c += 32;
-            name[i] = c;
-        }
+            
+        out[i] = c;
     }
 }
 
 static struct wadentry_t*
 lk_get_lump_info(char *lumpname) {
-    struct wadentry_t *lump = NULL;
+    char clean_name[16];
+    lk_clean_name(lumpname, clean_name);
+
+    printf("Lump Name: %s\n", clean_name);
 
     for(u32 i = 0; i < lk_num_lumps; i++) {
-        if(!q_strcmp(lumpname, lk_lumps[i].name))
+        if(!q_strcmp(clean_name, lk_lumps[i].name))
             return &lk_lumps[i];
     }
 
-    return lump;
+    return NULL;
 }
 
 void
@@ -70,7 +72,7 @@ wad_load(const char *filename) {
     struct wadentry_t *lump_start = lk_lumps;
 
     for(u32 i = 0; i < wad_header->num_entries; i++) {
-        lk_clean_name(lk_lumps->name);
+        lk_clean_name(lk_lumps->name, lk_lumps->name);
         lk_lumps++;
     }
 
@@ -79,12 +81,12 @@ wad_load(const char *filename) {
 
 void*
 wad_get(char *lumpname) {
-    // lk_clean_name(lumpname);
     struct wadentry_t *lump = lk_get_lump_info(lumpname);
 
     // NOTE: Debug
-    printf("Found lump: %s\n", lump->name);
+    if(!lump) return NULL;
 
+    printf("Found lump: %s\n", lump->name);
     return (void*)(lk_wad + lump->offset);
 }
 

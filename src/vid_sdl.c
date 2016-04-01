@@ -53,8 +53,8 @@ vid_init(void) {
     vid_init_fullscreen_mode();
 
     // NOTE: Print out all modes
-    for(u32 i = 0; i < MAX_MODES; i++)
-        printf("width: %d - height: %d - fullscreen: %s\n", lk_mode_list[i].width, lk_mode_list[i].height, lk_mode_list[i].fullscreen ? "true" : "false");
+    // for(u32 i = 0; i < MAX_MODES; i++)
+    //     printf("width: %d - height: %d - fullscreen: %s\n", lk_mode_list[i].width, lk_mode_list[i].height, lk_mode_list[i].fullscreen ? "true" : "false");
 
     return vid_setmode("Handmade Quake OSX", 3);
 }

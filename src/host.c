@@ -28,6 +28,7 @@ bool
 host_init() {
     com_file_init();
     wad_load("gfx.wad");
+    wad_get("nuM_0");
     return vid_init();
 }
 
