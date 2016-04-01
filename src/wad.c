@@ -37,13 +37,13 @@ lk_clean_name(const char *in, char *out) {
         // NOTE: Capital to lower case.
         if(c >= 'A' && c <= 'Z')
             c += 32;
-            
+
         out[i] = c;
     }
 }
 
 static struct wadentry_t*
-lk_get_lump_info(char *lumpname) {
+lk_get_lump_info(const char *lumpname) {
     char clean_name[16];
     lk_clean_name(lumpname, clean_name);
 
@@ -59,7 +59,7 @@ lk_get_lump_info(char *lumpname) {
 
 void
 wad_load(const char *filename) {
-    lk_wad = com_find_file(filename, NULL);
+    lk_wad = pak_get(filename, NULL);
 
     struct wadhead_t *wad_header = (struct wadhead_t *)lk_wad;
 
@@ -80,7 +80,7 @@ wad_load(const char *filename) {
 }
 
 void*
-wad_get(char *lumpname) {
+wad_get(const char *lumpname) {
     struct wadentry_t *lump = lk_get_lump_info(lumpname);
 
     // NOTE: Debug

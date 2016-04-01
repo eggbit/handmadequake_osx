@@ -12,9 +12,6 @@ void q_strncpy(char *dest, const char *src, i32 count);
 
 // common functions
 const char *com_check_parm(const char *search_arg, u32 num_args, const char *args[]);
-void com_file_init(void);
-void com_file_shutdown(void);
-void *com_find_file(const char *path, i32 *length);
 
 #define com_free(p)     \
     do {                \
