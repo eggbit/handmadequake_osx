@@ -3,8 +3,8 @@
 
 #include "quakedef.h"
 
-void wad_load(const char *filename);
-void *wad_get(const char *lumpname);
+void wad_load();
+void *wad_get(const char *lumpname, u32 *length);
 void wad_free(void);
 
 #endif // wad_h

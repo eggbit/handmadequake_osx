@@ -25,7 +25,7 @@ draw_load_palette(void) {
 
 void
 draw_load_image(struct lmpdata_t *lmp, const char *path) {
-    i32 bytes_read = 0;
+    u32 bytes_read = 0;
     u32 *data = pak_get(path, &bytes_read);
 
     if(bytes_read) {

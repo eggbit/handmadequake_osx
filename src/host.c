@@ -27,8 +27,13 @@ host_filter_time(double time) {
 bool
 host_init() {
     pak_load();
-    wad_load("gfx.wad");
-    wad_get("nuM_0");
+    wad_load();
+
+    u32 size;
+    wad_get("backtile", &size);
+
+    print_dec(size);
+
     return vid_init();
 }
 

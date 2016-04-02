@@ -58,8 +58,8 @@ lk_get_lump_info(const char *lumpname) {
 }
 
 void
-wad_load(const char *filename) {
-    lk_wad = pak_get(filename, NULL);
+wad_load() {
+    lk_wad = pak_get("gfx.wad", NULL);
 
     struct wadhead_t *wad_header = (struct wadhead_t *)lk_wad;
 
@@ -80,11 +80,12 @@ wad_load(const char *filename) {
 }
 
 void*
-wad_get(const char *lumpname) {
+wad_get(const char *lumpname, u32 *length) {
     struct wadentry_t *lump = lk_get_lump_info(lumpname);
 
     // NOTE: Debug
     if(!lump) return NULL;
+    if(length) *length = lump->size;
 
     printf("Found lump: %s\n", lump->name);
     return (void*)(lk_wad + lump->offset);

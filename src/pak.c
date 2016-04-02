@@ -78,7 +78,7 @@ lk_find_file(const char *path, struct searchpaths_t *node) {
 }
 
 static void *
-lk_get_file(struct searchpaths_t *node, i32 index, i32 *length) {
+lk_get_file(struct searchpaths_t *node, i32 index, u32 *length) {
     i32 pak_handle = node->pak->pack_handle;
     i32 file_length = node->pak->pak_files[index].file_length;
 
@@ -115,7 +115,7 @@ pak_free(void) {
 
 // NOTE: com_find_file
 void *
-pak_get(const char *path, i32 *length) {
+pak_get(const char *path, u32 *length) {
     for(struct searchpaths_t *node = lk_search_paths; node != NULL; node = node->next) {
         i32 index = lk_find_file(path, node);
         if(index >= 0) return lk_get_file(node, index, length);
