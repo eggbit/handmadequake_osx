@@ -26,7 +26,7 @@ host_filter_time(double time) {
 
 bool
 host_init() {
-    com_file_init();
+    pak_load();
     wad_load("gfx.wad");
     wad_get("nuM_0");
     return vid_init();
@@ -45,7 +45,7 @@ host_frame(double timestep) {
 void
 host_shutdown() {
     wad_free();
-    com_file_shutdown();
+    pak_free();
     vid_shutdown();
     SDL_Quit();
 }

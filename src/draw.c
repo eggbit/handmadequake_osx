@@ -4,7 +4,7 @@ static SDL_Palette *lk_palette = NULL;
 
 void
 draw_load_palette(void) {
-    u8 *data = com_find_file("gfx/palette.lmp", NULL);
+    u8 *data = pak_get("gfx/palette.lmp", NULL);
 
     if(data) {
         lk_palette = SDL_AllocPalette(256);
@@ -26,7 +26,7 @@ draw_load_palette(void) {
 void
 draw_load_image(struct lmpdata_t *lmp, const char *path) {
     i32 bytes_read = 0;
-    u32 *data = com_find_file(path, &bytes_read);
+    u32 *data = pak_get(path, &bytes_read);
 
     if(bytes_read) {
         lmp->width = data[0];

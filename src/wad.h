@@ -4,7 +4,7 @@
 #include "quakedef.h"
 
 void wad_load(const char *filename);
-void *wad_get(char *lumpname);
+void *wad_get(const char *lumpname);
 void wad_free(void);
 
 #endif // wad_h
