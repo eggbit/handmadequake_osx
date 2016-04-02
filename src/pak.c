@@ -1,12 +1,5 @@
 #include "pak.h"
 
-struct dpackheader_t {
-    char magic[4];
-    i32 directory_offset;
-    i32 directory_length;
-};
-
-// NOTE: .PAK
 struct pack_t {
     char pack_name[128];
     i32 pack_handle;
@@ -19,45 +12,42 @@ struct pack_t {
     } *pak_files;
 };
 
-struct searchpaths_t {
+static struct dpackheader_t {
+    char magic[4];
+    i32 directory_offset;
+    i32 directory_length;
+} lk_pak_header;
+
+static struct searchpaths_t {
     struct pack_t *pak;
     struct searchpaths_t *next;
-};
-
-static struct searchpaths_t *s_search_paths = NULL;
+} *lk_search_paths;
 
 static struct pack_t *
 lk_load_pak(const char *path) {
-    struct dpackheader_t pak_header;
-
-    // NOTE: Allocate the structre we'll be returning.
     struct pack_t *pak = malloc(sizeof(struct pack_t));
-    q_strcpy(pak->pack_name, path);
-
-    // NOTE: Open the .PAK and verify.
     pak->pack_handle = sys_fopen_rb(path, NULL);
-    if(pak->pack_handle < 0) goto error;
 
-    // NOTE: Read the header and verify.
-    sys_fread(pak->pack_handle, &pak_header, sizeof(pak_header));
-    if(strncmp(pak_header.magic, "PACK", 4) != 0) goto error;
+    if(pak->pack_handle >= 0) {
+        sys_fread(pak->pack_handle, &lk_pak_header, sizeof(lk_pak_header));
 
-    // NOTE: Get the nunber of files in the .PAK and allocate enough space for them.
-    pak->num_files = pak_header.directory_length / sizeof(struct packfile_t);
-    pak->pak_files = malloc(pak->num_files * sizeof(struct packfile_t));
+        if(strncmp(lk_pak_header.magic, "PACK", 4) == 0) {
+            q_strcpy(pak->pack_name, path);
+            pak->num_files = lk_pak_header.directory_length / sizeof(struct packfile_t);
+            pak->pak_files = malloc(pak->num_files * sizeof(struct packfile_t));
 
-    // NOTE: Move to the start of the files and read in the information.
-    sys_fseek(pak->pack_handle, pak_header.directory_offset);
-    sys_fread(pak->pack_handle, pak->pak_files, pak_header.directory_length);
+            // NOTE: Move to the start of the files and read in the information.
+            sys_fseek(pak->pack_handle, lk_pak_header.directory_offset);
+            sys_fread(pak->pack_handle, pak->pak_files, lk_pak_header.directory_length);
 
-    goto escape;
+            return pak;
+        }
+    }
 
-error:
     com_free(pak);
     printf("Error opening %s\n", path);
 
-escape:
-    return pak;
+    return NULL;
 }
 
 static void
@@ -73,8 +63,8 @@ lk_add_game_directory(const char *dir) {
 
         struct searchpaths_t *new = malloc(sizeof(struct searchpaths_t));
         new->pak = pak;
-        new->next = s_search_paths;
-        s_search_paths = new;
+        new->next = lk_search_paths;
+        lk_search_paths = new;
     }
 }
 
@@ -111,7 +101,7 @@ pak_load(void) {
 // NOTE: com_file_shutdown
 void
 pak_free(void) {
-    for(struct searchpaths_t *node = s_search_paths; node != NULL; node = node->next) {
+    for(struct searchpaths_t *node = lk_search_paths; node != NULL; node = node->next) {
         struct searchpaths_t *temp = node;
 
         sys_fclose(temp->pak->pack_handle);
@@ -120,13 +110,13 @@ pak_free(void) {
         com_free(temp);
     }
 
-    s_search_paths = NULL;
+    lk_search_paths = NULL;
 }
 
 // NOTE: com_find_file
 void *
 pak_get(const char *path, i32 *length) {
-    for(struct searchpaths_t *node = s_search_paths; node != NULL; node = node->next) {
+    for(struct searchpaths_t *node = lk_search_paths; node != NULL; node = node->next) {
         i32 index = lk_find_file(path, node);
         if(index >= 0) return lk_get_file(node, index, length);
     }
