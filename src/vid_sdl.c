@@ -16,8 +16,9 @@ static struct vmode_t lk_mode_list[MAX_MODES] = {
     { 1024, 768, false }
 };
 
-static struct lmpdata_t lk_discdata = { 0 };
-static struct lmpdata_t lk_pausedata = { 0 };
+static void *lk_discdata = NULL;
+static void *lk_pausedata = NULL;
+static void *lk_tiledata = NULL;
 
 static SDL_Window *lk_window = NULL;
 static SDL_Renderer *lk_renderer = NULL;
@@ -80,8 +81,10 @@ vid_setmode(const char *title, i32 mode) {
 
     // TODO: Error checking.
     draw_load_palette();
-    draw_load_image(&lk_discdata, "gfx/qplaque.lmp");
-    draw_load_image(&lk_pausedata, "gfx/menuplyr.lmp");
+
+    lk_discdata = pak_get("gfx/qplaque.lmp", NULL);
+    lk_pausedata = pak_get("gfx/menuplyr.lmp", NULL);
+    lk_tiledata = wad_get("num_9", NULL);
 
     return true;
 }
@@ -89,8 +92,9 @@ vid_setmode(const char *title, i32 mode) {
 bool
 vid_draw(void) {
     draw_rect(lk_surface, 0, 0, lk_surface->w, lk_surface->h, SDL_MapRGB(lk_surface->format, 100, 100, 50));
-    draw_pic(lk_surface, 100, 20, &lk_pausedata);
-    draw_pic(lk_surface, 20, 60, &lk_discdata);
+    draw_pic(lk_surface, 100, 20, lk_pausedata);
+    draw_pic(lk_surface, 20, 60, lk_discdata);
+    draw_pic(lk_surface, 100, 120, lk_tiledata);
 
     return true;
 }
@@ -118,8 +122,8 @@ vid_update(void) {
 
 void
 vid_shutdown(void) {
-    com_free(lk_discdata.data);
-    com_free(lk_pausedata.data);
+    com_free(lk_discdata);
+    com_free(lk_pausedata);
     draw_free_palette();
     SDL_FreeSurface(lk_surface);
     SDL_DestroyTexture(lk_texture);

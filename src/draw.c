@@ -24,29 +24,18 @@ draw_load_palette(void) {
 }
 
 void
-draw_load_image(struct lmpdata_t *lmp, const char *path) {
-    u32 bytes_read = 0;
-    u32 *data = pak_get(path, &bytes_read);
-
-    if(bytes_read) {
-        lmp->width = data[0];
-        lmp->height = data[1];
-        lmp->data = malloc(bytes_read);
-
-        memcpy(lmp->data, data + 2, bytes_read - 8);
-        free(data);
-    }
-}
-
-void
-draw_pic(SDL_Surface *s, i32 x, i32 y, struct lmpdata_t *lmp) {
+draw_pic(SDL_Surface *s, i32 x, i32 y, u32 *data) {
     u32 *dest = s->pixels;
+    u8 *source = (u8 *)data;
+
+    i32 width = data[0];
+    i32 height = data[1];
+
     dest += (y * s->w + x); // NOTE: Starting pixel position.
+    source += 8;            // NOTE: Starting data position (skip width and height).
 
-    u8 *source = lmp->data;
-
-    for(i32 y = 0; y < lmp->height; y++) {
-        for(i32 x = 0; x < lmp->width; source++, x++) {
+    for(i32 y = 0; y < height; y++) {
+        for(i32 x = 0; x < width; source++, x++) {
             if(*source != 0xff) {
                 u32 color = (lk_palette->colors[*source].r << 16) | (lk_palette->colors[*source].g << 8) | lk_palette->colors[*source].b;
                 dest[y * s->w + x] = color;
