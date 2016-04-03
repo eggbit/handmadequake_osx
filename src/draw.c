@@ -37,8 +37,8 @@ draw_pic(SDL_Surface *s, i32 x, i32 y, u32 *data) {
     for(i32 y = 0; y < height; y++) {
         for(i32 x = 0; x < width; source++, x++) {
             if(*source != 0xff) {
-                u32 color = (lk_palette->colors[*source].r << 16) | (lk_palette->colors[*source].g << 8) | lk_palette->colors[*source].b;
-                dest[y * s->w + x] = color;
+                SDL_Color c = lk_palette->colors[*source];
+                dest[y * s->w + x] = (c.r << 16) | (c.g << 8) | c.b;
             }
         }
     }
