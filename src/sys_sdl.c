@@ -153,21 +153,31 @@ sys_va(const char *format, ...) {
 
 int
 main(__unused int argc, __unused const char *argv[]) {
-    if(!host_init()) goto exit;
+    #define ALLOC_SIZE 16 * 1024 * 1024
 
-    struct timer_t timer;
-    sys_timerinit(&timer);
+    void *mem = malloc(ALLOC_SIZE);
+    hunk_memory_init(mem, ALLOC_SIZE);
 
-    for(;;) {
-        sys_timerupdate(&timer);
-        if(!host_frame(timer.delta)) goto exit;
-    }
+    int *alloc = (int *)hunk_alloc(4);
+    *alloc = 15;
 
-exit:;
-    const char *error = SDL_GetError();
-    if(error != NULL && error[0] != '\0') printf("ERROR: %s\n", error);
+    com_free(mem);
 
-    host_shutdown();
-
+//     if(!host_init()) goto exit;
+//
+//     struct timer_t timer;
+//     sys_timerinit(&timer);
+//
+//     for(;;) {
+//         sys_timerupdate(&timer);
+//         if(!host_frame(timer.delta)) goto exit;
+//     }
+//
+// exit:;
+//     const char *error = SDL_GetError();
+//     if(error != NULL && error[0] != '\0') printf("ERROR: %s\n", error);
+//
+//     host_shutdown();
+//
     return 0;
 }

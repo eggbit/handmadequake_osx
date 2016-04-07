@@ -29,5 +29,6 @@ typedef uint64_t u64;
 #include "draw.h"
 #include "pak.h"
 #include "wad.h"
+#include "zone.h"
 
 #endif /* quakedef_h */
