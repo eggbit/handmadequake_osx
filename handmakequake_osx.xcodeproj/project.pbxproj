@@ -7,6 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		E00E53771CA046E6005AC630 /* draw.c in Sources */ = {isa = PBXBuildFile; fileRef = E00E53751CA046E6005AC630 /* draw.c */; };
+		E04FB3111CAEC35B003EB115 /* wad.c in Sources */ = {isa = PBXBuildFile; fileRef = E04FB30F1CAEC35B003EB115 /* wad.c */; };
+		E04FB3171CB17EC1003EB115 /* pak.c in Sources */ = {isa = PBXBuildFile; fileRef = E04FB3151CB17EC1003EB115 /* pak.c */; };
 		E09DFBD71C4941CA0010D72F /* main.c in Sources */ = {isa = PBXBuildFile; fileRef = E09DFBD61C4941CA0010D72F /* main.c */; };
 		E0B7CD391C494381004983EE /* common.c in Sources */ = {isa = PBXBuildFile; fileRef = E0F5A8361C48200E0000FA62 /* common.c */; };
 		E0C231F11C765C8900CD3039 /* host.c in Sources */ = {isa = PBXBuildFile; fileRef = E0C231EF1C765C8900CD3039 /* host.c */; };
@@ -37,8 +40,14 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		E00E53751CA046E6005AC630 /* draw.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = draw.c; sourceTree = "<group>"; };
+		E00E53761CA046E6005AC630 /* draw.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = draw.h; sourceTree = "<group>"; };
 		E0365A551C387D67005EAD9C /* handmakequake_osx */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = handmakequake_osx; sourceTree = BUILT_PRODUCTS_DIR; };
 		E037D0FB1C4827A1003D352A /* quakedef.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = quakedef.h; sourceTree = "<group>"; };
+		E04FB30F1CAEC35B003EB115 /* wad.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = wad.c; sourceTree = "<group>"; };
+		E04FB3101CAEC35B003EB115 /* wad.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = wad.h; sourceTree = "<group>"; };
+		E04FB3151CB17EC1003EB115 /* pak.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = pak.c; sourceTree = "<group>"; };
+		E04FB3161CB17EC1003EB115 /* pak.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = pak.h; sourceTree = "<group>"; };
 		E09DFBD41C4941CA0010D72F /* test */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = test; sourceTree = BUILT_PRODUCTS_DIR; };
 		E09DFBD61C4941CA0010D72F /* main.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = main.c; sourceTree = "<group>"; };
 		E0B7CD381C494359004983EE /* greatest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = greatest.h; sourceTree = "<group>"; };
@@ -91,6 +100,12 @@
 		E0365A571C387D67005EAD9C /* src */ = {
 			isa = PBXGroup;
 			children = (
+				E04FB3151CB17EC1003EB115 /* pak.c */,
+				E04FB3161CB17EC1003EB115 /* pak.h */,
+				E04FB30F1CAEC35B003EB115 /* wad.c */,
+				E04FB3101CAEC35B003EB115 /* wad.h */,
+				E00E53751CA046E6005AC630 /* draw.c */,
+				E00E53761CA046E6005AC630 /* draw.h */,
 				E0C231F21C7B8ED400CD3039 /* sys.h */,
 				E0C231F31C7B8ED400CD3039 /* sys_sdl.c */,
 				E0C231F41C7B8ED400CD3039 /* vid_sdl.c */,
@@ -190,9 +205,12 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				E04FB3111CAEC35B003EB115 /* wad.c in Sources */,
+				E00E53771CA046E6005AC630 /* draw.c in Sources */,
 				E0F5A8381C48200E0000FA62 /* common.c in Sources */,
 				E0C231F61C7B8ED400CD3039 /* sys_sdl.c in Sources */,
 				E0C231F11C765C8900CD3039 /* host.c in Sources */,
+				E04FB3171CB17EC1003EB115 /* pak.c in Sources */,
 				E0C231F71C7B8ED400CD3039 /* vid_sdl.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

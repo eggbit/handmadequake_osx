@@ -13,4 +13,12 @@ void q_strncpy(char *dest, const char *src, i32 count);
 // common functions
 const char *com_check_parm(const char *search_arg, u32 num_args, const char *args[]);
 
+#define com_free(p)     \
+    do {                \
+        if(p) {         \
+            free(p);    \
+            p = NULL;   \
+        }               \
+    } while(0)
+
 #endif /* common_h */
